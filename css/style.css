@@ -44,13 +44,15 @@ label{display:flex;flex-direction:column;gap:4px;width:100%;align-items:center}
 .big{min-height:110px;font-size:clamp(1.1rem,4vw,1.8rem)}
 .prog{font:900 clamp(2rem,8vw,4rem) "Arial Black",Impact,sans-serif}
 .duel{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:16px;width:100%}
-.duel>.sb,.duel>.pnl{grid-column:1/-1}.mid{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.duel>.sb,.duel>.mnu{grid-column:1/-1}.mid{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
 .tc{border-radius:20px;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;background:#0a0f2ecc;border:2px solid var(--c);box-shadow:0 0 18px var(--g);transition:transform .25s,box-shadow .25s}
 .tc.act{box-shadow:0 0 46px var(--c);transform:scale(1.03)}
 .word{font:900 clamp(2rem,9vw,4.5rem) "Arial Black",Impact,sans-serif;letter-spacing:.06em;text-transform:uppercase}
 .win{font:900 clamp(1.8rem,7vw,4rem) "Arial Black",Impact,sans-serif;animation:pu 1s infinite alternate}@keyframes pu{to{transform:scale(1.08);text-shadow:0 0 30px var(--mg)}}
 .res{display:flex;gap:14px;flex-wrap:wrap;width:100%}.fin .tm{flex-direction:column;text-align:center}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
-@media(max-width:900px){.duel{grid-template-columns:1fr 1fr}.mid{grid-column:1/-1;order:3}.duel>.sb{order:4}.duel>.pnl{order:5}}
+@media(max-width:900px){.duel{grid-template-columns:1fr 1fr}.mid{grid-column:1/-1;order:3}.duel>.sb{order:4}.duel>.mnu{order:5}}
 @media(max-width:560px){.duel{grid-template-columns:1fr}.tc{flex-direction:row;justify-content:space-between}.tc .clock{font-size:2.8rem}.pair,.opts{grid-template-columns:1fr}.pnl .b{flex:1 1 44%}}
 @media(prefers-reduced-motion:reduce){*,:before{animation:none!important;transition:none!important}}
+.mnu{width:100%}.mnu summary{list-style:none;display:flex;align-items:center;justify-content:center;max-width:220px;margin:auto}.mnu summary::-webkit-details-marker{display:none}.mnu .pnl{margin-top:10px}
+.cells{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.cell{width:clamp(30px,8vw,56px);height:clamp(40px,10vw,70px);border:2px solid var(--cy);border-radius:8px;display:flex;align-items:center;justify-content:center;background:#0a0f2ecc;font:900 clamp(1.2rem,4vw,2.2rem) "Arial Black",Impact,sans-serif}.cell.sp{border:0;background:none;width:14px}

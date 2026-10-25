@@ -16,7 +16,7 @@ A.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.dis
 const logo=`<svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22e4ff"/><stop offset="1" stop-color="#ff2bd6"/></linearGradient></defs><polygon points="60,6 108,33 108,87 60,114 12,87 12,33" fill="#0a0f2e" stroke="url(#lg)" stroke-width="5"/><text x="60" y="80" text-anchor="middle" font-size="58" font-weight="900" fill="url(#lg)" font-family="Arial Black,Impact,sans-serif">Q</text></svg>`;
 const tsel=()=>`<label>Squadra che gioca<select id="o_tm"><option value="0">${esc(S.n[0])}</option><option value="1">${esc(S.n[1])}</option></select></label>`;
 const nv=id=>+($('#'+id)?.value);
-const pnl=x=>`<div class="pnl">${x||''}<button class="b s" data-a="pz" ${st.p?'disabled':''}>PAUSA</button><button class="b s" data-a="rp" ${st.p?'':'disabled'}>RIPRENDI</button><button class="b s" data-a="un">ANNULLA ULTIMA AZIONE</button><button class="b s" data-a="rs">RIAVVIA</button><button class="b s" data-a="mn">MENU</button></div>`;
+const pnl=x=>`<details class="mnu"><summary class="b s">⋯ MENU</summary><div class="pnl">${x||''}<button class="b s" data-a="pz" ${st.p?'disabled':''}>PAUSA</button><button class="b s" data-a="rp" ${st.p?'':'disabled'}>RIPRENDI</button><button class="b s" data-a="un">ANNULLA ULTIMA AZIONE</button><button class="b s" data-a="rs">RIAVVIA</button><button class="b s" data-a="mn">ESCI AL MENU</button></div></details>`;
 const sb=()=>`<div class="sb">${[0,1].map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong id="sc${i}">${st.sc[i]}</strong><span><button data-a="adj" data-v="${i},-1" aria-label="Meno">−</button><button data-a="adj" data-v="${i},1" aria-label="Più">+</button></span></div>`).join('')}</div>`;
 function play(id,init,view,a,tf){
   stop();st=init();hist=[];
@@ -47,7 +47,7 @@ function teams(){acts={hm:home,ok:()=>{S.n=[0,1].map(i=>$('#n'+i).value.trim()||
   scr(`<section class="c"><h2>CHI GIOCA?</h2><div class="grid">${[0,1].map(i=>`<div class="cd tcard t${i}"><div class="ic">${i?'🔥':'⚡'}</div><h2>SQUADRA ${i+1}</h2><input class="fld" id="n${i}" maxlength="24" placeholder="Squadra ${i+1}" value="${S.n[i]=='Squadra '+(i+1)?'':esc(S.n[i])}" autocomplete="off"></div>`).join('')}</div><button class="b" data-a="ok">CONFERMA</button><button class="b s" data-a="hm">INDIETRO</button></section>`)}
 function menu(){stop();st=null;acts={pr:prep,tm:teams,hm:home};
   scr(`<section class="c"><h2>SCEGLI UN GIOCO</h2><p class="sub">${tn(0)} contro ${tn(1)}</p><div class="grid">${ID.map(i=>`<div class="cd"><div class="ic">${GM[i].i}</div><h2>${GM[i].n}</h2><small>${GM[i].s}</small><p>${GM[i].d}</p><button class="b" data-a="pr" data-v="${i}">GIOCA</button></div>`).join('')}</div><button class="b s" data-a="tm">CAMBIA SQUADRE</button><button class="b s" data-a="hm">HOME</button></section>`)}
-const HINT={gh:'5 indizi separati da virgola, poi | e la soluzione. Esempio: ARTIFICIO,FATUO,AMICO,INCROCIATO,SACRO|FUOCO',fi:'domanda|risposta corretta|risposta sbagliata',du:'domanda|risposta',iv:'parola|categoria',da:'categoria|domanda|anno|spiegazione'};
+const HINT={gh:'5 indizi separati da virgola, poi | e la soluzione. Esempio: ARTIFICIO,FATUO,AMICO,INCROCIATO,SACRO|FUOCO',fi:'domanda|risposta corretta|risposta sbagliata',du:'definizione|PAROLA',iv:'parola|categoria',da:'categoria|domanda|anno|spiegazione'};
 const NEED={gh:2,fi:3,du:2,iv:1,da:4};
 function prep(id){stop();acts={st:()=>{GM[id].rd();GM[id].go()},bk:menu,ac:()=>{const l=prompt(HINT[id]);if(!l)return;if(l.split('|').length<NEED[id]||(id=='gh'&&l.split('|')[0].split(',').length!=5)||(id=='da'&&isNaN(+l.split('|')[2]))){alert('Formato non valido. Usa: '+HINT[id]);return}const c=cust(id);c.push(l.trim());LS.s('cu_'+id,c);alert('Aggiunto!')}};
   scr(`<section class="c"><div class="ic" style="font-size:3rem">${GM[id].i}</div><h2>${GM[id].n}</h2><p class="sub">${GM[id].r}</p><div class="cd opt">${GM[id].o()}</div><button class="b" data-a="st">INIZIA IL GIOCO</button><button class="b s" data-a="ac">AGGIUNGI ${id=='iv'?'PAROLA':id=='gh'?'PARTITA':'DOMANDA'}</button><button class="b s" data-a="bk">INDIETRO</button></section>`)}
@@ -86,35 +86,36 @@ GM.fi={n:'IL GIOCO FINALE',s:'AVANTI UN ALTRO!',i:'🎯',d:'21 risposte sbagliat
   ms=>{const b=st.md?st.jp:st.left;if(st.md)st.jp-=ms;else st.left-=ms;const n=st.md?st.jp:st.left;tick10(b,n);const e=$('#tm');if(e)e.textContent=st.md?sec(st.jp):fm(st.left);const j=$('#jp');if(j)j.textContent=Math.max(0,Math.ceil(st.jp/1000)*1000).toLocaleString('it-IT');
    if(n<=0){snd('end');st.note='Tempo scaduto: serie raggiunta '+st.cnt+'/21';fin('AVANTI UN ALTRO!')}})}};
 /* IL DUELLO */
-GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Due squadre, due timer indipendenti: chi resta senza tempo perde.',r:'Gira un solo timer alla volta: quello della squadra attiva. A ogni risposta corretta si ferma e parte quello dell’avversaria. Chi arriva a zero perde.',
- o:()=>`<label>Secondi per squadra<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label><label>Penalità per risposta sbagliata (secondi)<input class="fld" id="o_p" type="number" min="0" value="3" inputmode="numeric"></label>`,
- rd:()=>{OP.du={s:Math.max(10,nv('o_s')||60),p:Math.max(0,isNaN(nv('o_p'))?3:nv('o_p'))}},
+GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: indovina la parola prima che il tempo finisca.',r:'Una definizione e una parola con le lettere nascoste: una nuova lettera appare ogni 2 secondi, l’ultima resta nascosta. La squadra risponde a voce; il conduttore preme «PASSA ALL’ALTRA SQUADRA». Il timer della squadra attiva scorre, l’altro aspetta. Chi finisce il tempo perde.',
+ o:()=>`<label>Secondi per squadra<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
+ rd:()=>{OP.du={s:Math.max(10,nv('o_s')||60)}},
  go:()=>{const o=OP.du,Q=sh(D.du.concat(cust('du')).map(l=>l.split('|')));
-  const end=w=>{st.ex=[0,1].map(i=>'Tempo rimasto: '+sec(st.l[i])+' s');if(w>=0)st.sc[w]+=1;st.note=w<0?'Tempo pari: nessun punto.':'Il tempo di '+esc(S.n[1-w])+' è finito.';fin('IL DUELLO')};
-  play('du',()=>({sc:[0,0],stp:1,l:[o.s*1000,o.s*1000],a:0,rn:false,i:0,sh:false,fb:null}),
-  ()=>{const s=st,[q,an]=Q[s.i%Q.length];
-   const tc=i=>`<div class="tc t${i} ${s.a==i&&s.rn&&!s.p?'act':''}"><b>${esc(S.n[i])}</b><div class="clock" id="d${i}">${sec(s.l[i])}</div></div>`;
-   return`<section class="duel">${tc(0)}<div class="mid"><small>Domanda ${s.i+1} · tocca a ${tn(s.a)}</small><h2 class="q">${esc(q)}</h2>${s.sh?`<p class="jp"><strong>${esc(an)}</strong></p>`:''}<p class="msg ${s.fb?s.fb[0]:''}">${s.fb?s.fb[1]:''}</p><div class="row"><button class="b" data-a="av" ${s.rn?'disabled':''}>AVVIA PARTITA</button><button class="b" data-a="dok" ${s.rn?'':'disabled'}>RISPOSTA CORRETTA</button><button class="b r" data-a="dko" ${s.rn?'':'disabled'}>RISPOSTA SBAGLIATA</button><button class="b s" data-a="ps" ${s.rn?'':'disabled'}>PASSA</button><button class="b s" data-a="rv">MOSTRA RISPOSTA</button><button class="b s" data-a="nq">PROSSIMA DOMANDA</button><button class="b s" data-a="tp">TERMINA PARTITA</button></div></div>${tc(1)}${sb()}${pnl()}</section>`},
-  (sv,d)=>({av:()=>{sv();st.rn=true;st.a=0;snd('sw');d()},
-   dok:()=>{sv();snd('ok');st.a=1-st.a;st.i++;st.sh=false;st.fb=['ok','Corretta! Ora tocca a '+esc(S.n[st.a])];d()},
-   dko:()=>{sv();snd('ko');st.l[st.a]=Math.max(0,st.l[st.a]-o.p*1000);st.fb=['ko','Sbagliata! −'+o.p+' s'];if(st.l[st.a]<=0)return end(1-st.a);d()},
-   ps:()=>{sv();st.i++;st.sh=false;st.fb=['','Passata: i timer non cambiano'];d()},
-   nq:()=>{sv();st.i++;st.sh=false;st.fb=null;d()},rv:()=>{st.sh=!st.sh;d()},
-   tp:()=>{if(!confirm('Terminare la partita?'))return;end(st.l[0]==st.l[1]?-1:st.l[0]>st.l[1]?0:1)}}),
-  ms=>{if(!st.rn)return;const a=st.a,b=st.l[a];st.l[a]-=ms;tick10(b,st.l[a]);const e=$('#d'+a);if(e)e.textContent=sec(st.l[a]);if(st.l[a]<=0){st.l[a]=0;snd('end');end(1-a)}})}};
+  const W=()=>Q[st.i%Q.length][1].toUpperCase(),N=()=>W().replace(/ /g,'').length;
+  const cells=()=>{let k=0;return[...W()].map(c=>{if(c==' ')return'<span class="cell sp"></span>';const v=st.sw>0||k<st.rev;k++;return`<span class="cell">${v?esc(c):''}</span>`}).join('')};
+  play('du',()=>({sc:[0,0],stp:1,l:[o.s*1000,o.s*1000],a:0,i:0,rev:0,rt:0,sw:0,msg:'Inizia '+S.n[0]}),
+  ()=>{const s=st,tc=i=>`<div class="tc t${i} ${s.a==i?'act':''}"><b>${esc(S.n[i])}${s.a==i?' · IN GIOCO':''}</b><div class="clock" id="d${i}">${sec(s.l[i])}</div></div>`;
+   return`<section class="duel">${tc(0)}<div class="mid"><small>Definizione</small><h2 class="q">${esc(Q[s.i%Q.length][0])}</h2><div class="cells" id="wd">${cells()}</div><p class="msg">${s.p?'IN PAUSA':esc(s.msg)}</p><button class="b big" data-a="ps" ${s.sw>0?'disabled':''}>PASSA ALL'ALTRA SQUADRA</button></div>${tc(1)}${pnl()}</section>`},
+  (sv,d)=>({ps:()=>{if(st.sw>0||st.done)return;sv();snd('sw');st.a=1-st.a;st.sw=1500;st.msg='Cambio turno: tocca a '+S.n[st.a];d()}}),
+  ms=>{if(st.sw>0){st.sw-=ms;if(st.sw<=0){st.sw=0;st.i++;st.rev=0;st.rt=0;st.msg='Tocca a '+S.n[st.a];R()}return}
+   const a=st.a,b=st.l[a];st.l[a]-=ms;tick10(b,st.l[a]);const e=$('#d'+a);if(e)e.textContent=sec(st.l[a]);
+   if(st.l[a]<=0){st.l[a]=0;snd('end');st.ex=[0,1].map(i=>'Tempo rimasto: '+sec(st.l[i])+' s');st.sc[1-a]+=1;st.note='TEMPO SCADUTO per '+esc(S.n[a])+'!';return fin('IL DUELLO')}
+   st.rt+=ms;if(st.rt>=2000){st.rt-=2000;if(st.rev<N()-1){st.rev++;const w=$('#wd');if(w)w.innerHTML=cells()}}})}};
 /* INTESA VINCENTE */
-GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'Un concorrente indovina la parola segreta, gli altri due costruiscono la domanda.',r:'Tre concorrenti per squadra, un turno ciascuno. Due compagni costruiscono una domanda alternando una parola, il terzo indovina. L’organizzatore vede la parola e giudica. Telefono rivolto verso l’organizzatore!',
- o:()=>`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label><label>Difficoltà<select id="o_df"><option value="0">Tutte</option><option value="1">Facili</option><option value="2">Difficili</option></select></label>`,
- rd:()=>{OP.iv={s:Math.max(10,nv('o_s')||60),df:nv('o_df')}},
- go:()=>{const o=OP.iv;let P=[];D.iv.forEach(l=>{const[c,w]=l.split(':');w.split(',').forEach((x,i)=>P.push({w:x,c,e:i<6}))});cust('iv').forEach(l=>{const[w,c]=l.split('|');P.push({w:w.trim(),c:(c||'Altro').trim(),e:true})});
-  if(o.df)P=P.filter(x=>o.df==1?x.e:!x.e);if(!P.length)P=[{w:'parola',c:'Altro'}];P=sh(P);
-  const nt=()=>{st.turn++;if(st.turn>=6)return fin("L'INTESA VINCENTE");snd('sw');st.run=false;st.left=o.s*1000;st.g=0;st.vis=false;R()};
-  const nw=()=>{st.wi++;st.vis=false};
-  play('iv',()=>({sc:[0,0],stp:1,turn:0,run:false,left:o.s*1000,wi:0,g:0,er:0,vis:false}),
-  ()=>{const s=st,t=s.turn%2,x=P[s.wi%P.length];
-   return`<section class="c game ${'t'+t}">${sb()}<p>Turno ${s.turn+1} di 6 · ${tn(t)} · Concorrente ${Math.floor(s.turn/2)+1}</p><div class="clock" id="tm">${fm(s.left)}</div><p>Indovinate: <b>${s.g}</b> · Errori: <b>${s.er}</b></p>${s.run?`<small>${esc(x.c)}</small><div class="word">${s.vis?esc(x.w):'••••••'}</div><div class="row"><button class="b" data-a="pi">PAROLA INDOVINATA</button><button class="b r" data-a="er">ERRORE</button><button class="b s" data-a="ps">PASSA</button><button class="b s" data-a="mp">${s.vis?'NASCONDI PAROLA':'MOSTRA PAROLA'}</button><button class="b s" data-a="ft">FINE TURNO</button></div>`:`<p class="sub">Tocca a ${tn(t)}: concorrente ${Math.floor(s.turn/2)+1}.</p><button class="b" data-a="it">INIZIA TURNO</button>`}${pnl()}</section>`},
-  (sv,d)=>({it:()=>{sv();st.run=true;snd('sw');d()},pi:()=>{sv();snd('ok');st.sc[st.turn%2]++;st.g++;nw();d()},er:()=>{sv();snd('ko');st.er++;nw();d()},ps:()=>{sv();nw();d()},mp:()=>{st.vis=!st.vis;d()},ft:()=>{sv();nt()}}),
-  ms=>{if(!st.run)return;const b=st.left;st.left-=ms;tick10(b,st.left);const e=$('#tm');if(e)e.textContent=fm(st.left);if(st.left<=0){snd('end');nt()}})}};
+GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'I compagni suggeriscono una parola alla volta: chi indovina vince punti.',r:'Scegli la squadra. I suggeritori guardano lo schermo, chi indovina si gira. In 60 secondi dite una parola alla volta per far indovinare la parola segreta. Giusta +1, sbagliata −1. Poi gioca l’altra squadra.',
+ o:()=>tsel()+`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
+ rd:()=>{OP.iv={tm:nv('o_tm'),s:Math.max(10,nv('o_s')||60)}},
+ go:()=>{const o=OP.iv;let P=[];D.iv.forEach(l=>{const[c,w]=l.split(':');w.split(',').forEach(x=>P.push(x))});cust('iv').forEach(l=>P.push(l.split('|')[0].trim()));P=sh(P);
+  const nw=()=>{st.wi++};
+  play('iv',()=>({sc:[0,0],stp:1,tm:o.tm,ph:'prep',left:o.s*1000,wi:0,g:[0,0],er:[0,0],dn:[false,false]}),
+  ()=>{const s=st,t=s.tm;
+   if(s.ph=='prep')return`<section class="c game t${t}"><h2>${tn(t)}</h2><p class="sub">I suggeritori guardano lo schermo, chi indovina si gira. Il timer parte subito.</p><button class="b big" data-a="it">INIZIA TURNO</button>${pnl()}</section>`;
+   if(s.ph=='run')return`<section class="c game t${t}"><p>${tn(t)} · Punti <b>${s.sc[t]}</b> · Suggerisce: giocatore ${s.wi%3+1}</p><div class="clock" id="tm">${fm(s.left)}</div><div class="word">${esc(P[s.wi%P.length])}</div><p class="msg">${s.p?'IN PAUSA':''}</p><div class="row"><button class="b big" data-a="ok">DOMANDA GIUSTA</button><button class="b r big" data-a="ko">DOMANDA SBAGLIATA</button></div>${pnl()}</section>`;
+   return`<section class="c game t${t}"><h2>TEMPO SCADUTO!</h2><p>${tn(t)}</p><p class="prog">${s.sc[t]} punti</p><p>Indovinate: <b>${s.g[t]}</b> · Sbagliate: <b>${s.er[t]}</b></p><button class="b" data-a="nx">${s.dn[1-t]?'VEDI IL RISULTATO':'TURNO DELL’ALTRA SQUADRA'}</button></section>`},
+  (sv,d)=>({it:()=>{sv();st.ph='run';st.p=false;snd('sw');d()},
+   ok:()=>{if(st.ph!='run'||st.left<=0)return;sv();snd('ok');st.sc[st.tm]++;st.g[st.tm]++;nw();d()},
+   ko:()=>{if(st.ph!='run'||st.left<=0)return;sv();snd('ko');st.sc[st.tm]--;st.er[st.tm]++;nw();d()},
+   nx:()=>{if(st.dn[1-st.tm]){st.note='Risultato finale dopo i due turni.';return fin("L'INTESA VINCENTE")}st.tm=1-st.tm;st.ph='prep';st.left=o.s*1000;nw();d()}}),
+  ms=>{if(st.ph!='run')return;const b=st.left;st.left-=ms;tick10(b,st.left);const e=$('#tm');if(e)e.textContent=fm(st.left);if(st.left<=0){st.left=0;st.ph='res';st.dn[st.tm]=true;snd('end');R()}})}};
 /* GIOCO DELLE DATE */
 GM.da={n:'IL GIOCO DELLE DATE',s:"L'EREDITÀ",i:'📅',d:'Quattro anni, una sola data giusta: le squadre si alternano.',r:'Ogni domanda ha quattro anni possibili. Le squadre rispondono a turno: +10 punti per ogni risposta esatta. Dopo la risposta compare la spiegazione.',
  o:()=>`<label>Numero di domande<input class="fld" id="o_n" type="number" min="2" max="100" value="10" inputmode="numeric"></label><label>Secondi per domanda<input class="fld" id="o_s" type="number" min="5" value="30" inputmode="numeric"></label>`,
