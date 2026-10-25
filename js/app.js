@@ -9,7 +9,9 @@ const tn=i=>`<span class="tg t${i}">${esc(S.n[i])}</span>`;
 let st=null,acts={},tk=null,gen=0,lt=0,hist=[],ac,OP={},R=()=>{};
 const stop=()=>{clearInterval(tk);tk=null;gen++};
 const run=f=>{let l=Date.now();tk=setInterval(()=>{const n=Date.now(),d=n-l;l=n;if(st&&!st.p&&!st.done)f(d)},100)};
-function snd(t){if(!S.snd)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const f={ok:[660,880],ko:[220,150],tick:[900],end:[300,200,120],win:[523,659,784,1047],sw:[500,650]}[t];f.forEach((h,i)=>{const o=ac.createOscillator(),g=ac.createGain(),s=ac.currentTime+i*.12;o.frequency.value=h;o.type=t=='ko'||t=='end'?'sawtooth':'sine';o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.15,s);g.gain.exponentialRampToValueAtTime(.001,s+.2);o.start(s);o.stop(s+.22)})}catch(e){}}
+const fx=k=>{const e=document.createElement('div');e.className='flash '+k;document.body.appendChild(e);setTimeout(()=>e.remove(),700)};
+const conf=()=>{for(let i=0;i<70;i++){const e=document.createElement('i');e.className='cf';e.style.cssText=`left:${Math.random()*100}vw;background:${R0(['#22e4ff','#ff2bd6','#7b3dff','#27f59a','#ffd23f'])};animation-delay:${Math.random()*.8}s;--x:${Math.random()*200-100}px`;document.body.appendChild(e);setTimeout(()=>e.remove(),3800)}};
+function snd(t){if(t=='ok'||t=='ko')fx(t);if(!S.snd)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const f={ok:[660,880],ko:[220,150],tick:[900],end:[300,200,120],win:[523,659,784,1047],sw:[500,650]}[t];f.forEach((h,i)=>{const o=ac.createOscillator(),g=ac.createGain(),s=ac.currentTime+i*.12;o.frequency.value=h;o.type=t=='ko'||t=='end'?'sawtooth':'sine';o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.15,s);g.gain.exponentialRampToValueAtTime(.001,s+.2);o.start(s);o.stop(s+.22)})}catch(e){}}
 const tick10=(b,n)=>{if(sec(b)!=sec(n)&&sec(n)<=10&&sec(n)>0)snd('tick')};
 const scr=h=>{A.innerHTML=h;A.classList.remove('ani');void A.offsetWidth;A.classList.add('ani');window.scrollTo(0,0)};
 A.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const a=b.dataset.a,n=Date.now();if(a!='adj'&&n-lt<300)return;lt=n;if(acts[a])acts[a](b.dataset.v)});
@@ -35,7 +37,7 @@ function play(id,init,view,a,tf){
 }
 function fin(t){
   stop();st.done=true;snd('win');const[a,b]=st.sc,w=a==b?'PAREGGIO':'VINCE '+esc(S.n[a>b?0:1]).toUpperCase();
-  scr(`<section class="c fin"><h2>${t}</h2><div class="win">${w}</div><div class="res">${[0,1].map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong>${st.sc[i]}</strong>${st.ex?`<small>${st.ex[i]}</small>`:''}</div>`).join('')}</div>${st.note?`<p class="sub">${st.note}</p>`:''}<button class="b" data-a="ag">RIGIOCA</button><button class="b s" data-a="ot">SCEGLI UN ALTRO GIOCO</button><button class="b s" data-a="hm">TORNA ALLA HOME</button></section>`);
+  scr(`<section class="c fin"><h2>${t}</h2><div class="win">${w}</div><div class="res">${[0,1].map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong>${st.sc[i]}</strong>${st.ex?`<small>${st.ex[i]}</small>`:''}</div>`).join('')}</div>${st.note?`<p class="sub">${st.note}</p>`:''}<button class="b" data-a="ag">RIGIOCA</button><button class="b s" data-a="ot">SCEGLI UN ALTRO GIOCO</button><button class="b s" data-a="hm">TORNA ALLA HOME</button></section>`);conf();
 }
 const cust=k=>LS.g('cu_'+k,[]);
 const ID=['gh','fi','du','iv','da'];
@@ -91,15 +93,15 @@ GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: 
  rd:()=>{OP.du={s:Math.max(10,nv('o_s')||60)}},
  go:()=>{const o=OP.du,Q=sh(D.du.concat(cust('du')).map(l=>l.split('|')));
   const W=()=>Q[st.i%Q.length][1].toUpperCase(),N=()=>W().replace(/ /g,'').length;
-  const cells=()=>{let k=0;return[...W()].map(c=>{if(c==' ')return'<span class="cell sp"></span>';const v=st.sw>0||k<st.rev;k++;return`<span class="cell">${v?esc(c):''}</span>`}).join('')};
+  const cells=()=>{let k=0;return[...W()].map(c=>{if(c==' ')return'<span class="cell sp"></span>';const v=st.sw>0||k<st.rev,h=`<span class="cell ${v?'on':''} ${st.sw>0?'cas':''}" style="--d:${k*70}ms"><span class="l">${esc(c)}</span></span>`;k++;return h}).join('')};
   play('du',()=>({sc:[0,0],stp:1,l:[o.s*1000,o.s*1000],a:0,i:0,rev:0,rt:0,sw:0,msg:'Inizia '+S.n[0]}),
   ()=>{const s=st,tc=i=>`<div class="tc t${i} ${s.a==i?'act':''}"><b>${esc(S.n[i])}${s.a==i?' · IN GIOCO':''}</b><div class="clock" id="d${i}">${sec(s.l[i])}</div></div>`;
-   return`<section class="duel">${tc(0)}<div class="mid"><small>Definizione</small><h2 class="q">${esc(Q[s.i%Q.length][0])}</h2><div class="cells" id="wd">${cells()}</div><p class="msg">${s.p?'IN PAUSA':esc(s.msg)}</p><button class="b big" data-a="ps" ${s.sw>0?'disabled':''}>PASSA ALL'ALTRA SQUADRA</button></div>${tc(1)}${pnl()}</section>`},
+   return`<section class="duel">${tc(0)}<div class="mid"><small>Definizione</small><h2 class="q">${esc(Q[s.i%Q.length][0])}</h2><div class="cells" id="wd">${cells()}</div><div class="nx"><i id="nx"></i></div><p class="msg">${s.p?'IN PAUSA':esc(s.msg)}</p><button class="b big" data-a="ps" ${s.sw>0?'disabled':''}>PASSA ALL'ALTRA SQUADRA</button></div>${tc(1)}${pnl()}</section>`},
   (sv,d)=>({ps:()=>{if(st.sw>0||st.done)return;sv();snd('sw');st.a=1-st.a;st.sw=1500;st.msg='Cambio turno: tocca a '+S.n[st.a];d()}}),
   ms=>{if(st.sw>0){st.sw-=ms;if(st.sw<=0){st.sw=0;st.i++;st.rev=0;st.rt=0;st.msg='Tocca a '+S.n[st.a];R()}return}
-   const a=st.a,b=st.l[a];st.l[a]-=ms;tick10(b,st.l[a]);const e=$('#d'+a);if(e)e.textContent=sec(st.l[a]);
+   const a=st.a,b=st.l[a];st.l[a]-=ms;tick10(b,st.l[a]);const e=$('#d'+a);if(e){e.textContent=sec(st.l[a]);e.classList.toggle('low',sec(st.l[a])<=10)}
    if(st.l[a]<=0){st.l[a]=0;snd('end');st.ex=[0,1].map(i=>'Tempo rimasto: '+sec(st.l[i])+' s');st.sc[1-a]+=1;st.note='TEMPO SCADUTO per '+esc(S.n[a])+'!';return fin('IL DUELLO')}
-   st.rt+=ms;if(st.rt>=2000){st.rt-=2000;if(st.rev<N()-1){st.rev++;const w=$('#wd');if(w)w.innerHTML=cells()}}})}};
+   st.rt+=ms;if(st.rt>=2000){st.rt-=2000;if(st.rev<N()-1){st.rev++;const c=document.querySelectorAll('#wd .cell:not(.sp)')[st.rev-1];if(c){c.classList.add('on','fresh');snd('tick')}}}const nb=$('#nx');if(nb)nb.style.transform='scaleX('+Math.min(1,st.rt/2000)+')'})}};
 /* INTESA VINCENTE */
 GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'I compagni suggeriscono una parola alla volta: chi indovina vince punti.',r:'Scegli la squadra. I suggeritori guardano lo schermo, chi indovina si gira. In 60 secondi dite una parola alla volta per far indovinare la parola segreta. Giusta +1, sbagliata −1. Poi gioca l’altra squadra.',
  o:()=>tsel()+`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
