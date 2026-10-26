@@ -13,4 +13,36 @@
     "audio": "songs/audio/song_002.mp3",
     "cover": "songs/covers/song_002.jpg"
   }
+],
+  {
+    "id": "song_003",
+    "title": "Wrecking Ball",
+    "artist": "Katy Perry",
+    "audio": "songs/audio/song_003.mp3",
+    "cover": "songs/covers/song_003.jpg"
+  }
+],
+  {
+    "id": "song_004",
+    "title": "Call Me Maybe",
+    "artist": "Carly Rae Jepsen",
+    "audio": "songs/audio/song_004.mp3",
+    "cover": "songs/covers/song_004.jpg"
+  }
+],
+  {
+    "id": "song_005",
+    "title": "California Gurls",
+    "artist": "Katy Perry",
+    "audio": "songs/audio/song_005.mp3",
+    "cover": "songs/covers/song_005.jpg"
+  }
+],
+  {
+    "id": "song_006",
+    "title": "Firework",
+    "artist": "Katy Perry",
+    "audio": "songs/audio/song_006.mp3",
+    "cover": "songs/covers/song_006.jpg"
+  }
 ]
