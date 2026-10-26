@@ -104,3 +104,14 @@ body:before,body:after,h1,.logo,.tc.act{animation:none!important}.cd{backdrop-fi
 .bk{transform:rotateY(180deg);background:linear-gradient(160deg,#2a1d05,#0d0b06);border:2px solid #ffe08a;box-shadow:0 5px 12px #000a,0 0 16px #f5c54255;font:900 calc(var(--s)*.62) "Arial Black",Impact,sans-serif;color:#ffe08a}
 .bn{position:fixed;left:0;right:0;top:10%;text-align:center;font:900 clamp(1.6rem,7vw,3.6rem) "Arial Black",Impact,sans-serif;color:#ffe08a;text-shadow:0 0 30px #f5c54288;z-index:9;pointer-events:none;animation:bn 1.2s ease forwards}
 @keyframes bn{0%{opacity:0;transform:scale(.8)}20%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:scale(1.05)}}
+/* guess the song */
+.cvw{perspective:900px;width:min(58vw,300px)}.cv{aspect-ratio:1}
+.cin{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.4,.1,.2,1);will-change:transform}
+.cv.on .cin{transform:rotateY(180deg)}
+.cf0,.cb0{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:2px solid #f5c542;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 10px 30px #000b,0 0 34px #f5c54233}
+.cf0{background:radial-gradient(circle,#2a1d05 0 28%,transparent 29%),repeating-radial-gradient(circle,#17120a 0 3px,#0d0b06 3px 6px)}
+.cf0 span,.cb0:before{font:900 4rem "Arial Black",Impact,sans-serif;color:#f5c542}
+.cb0{transform:rotateY(180deg);background:linear-gradient(160deg,#2a1d05,#0d0b06)}.cb0:before{content:"♪";position:absolute}
+.cb0 img{position:relative;width:100%;height:100%;object-fit:cover}
+.cv.pl .cf0{box-shadow:0 10px 30px #000b,0 0 56px #f5c542aa}
+.sol{min-height:3.4em;display:flex;flex-direction:column;align-items:center}.sol b{font:900 clamp(1.3rem,5vw,2.4rem) "Arial Black",Impact,sans-serif;color:#ffe08a;animation:pop .5s both}.sol span{animation:pop .5s .12s both;opacity:.9}

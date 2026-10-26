@@ -7,7 +7,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const sec=ms=>Math.max(0,Math.ceil(ms/1000)),fm=ms=>{const s=sec(ms);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 const tn=i=>`<span class="tg t${i}">${esc(S.n[i])}</span>`;
 let st=null,acts={},tk=null,gen=0,lt=0,hist=[],ac,OP={},R=()=>{};
-const stop=()=>{clearInterval(tk);tk=null;gen++};
+let au=null,agen=0;const astop=()=>{agen++;if(au)au.pause()};
+const stop=()=>{astop();clearInterval(tk);tk=null;gen++};
 const run=f=>{let l=Date.now();tk=setInterval(()=>{const n=Date.now(),d=n-l;l=n;if(st&&!st.p&&!st.done)f(d)},100)};
 const pts=(t,k)=>{const e=document.createElement('div');e.className='pts '+(k||'');e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),950)};
 const bn=t=>{const e=document.createElement('div');e.className='bn';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)};
@@ -20,7 +21,7 @@ A.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.dis
 const logo=`<svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><polygon points="60,6 108,33 108,87 60,114 12,87 12,33" fill="#0d0b06" stroke="url(#lg)" stroke-width="5"/><text x="60" y="80" text-anchor="middle" font-size="58" font-weight="900" fill="url(#lg)" font-family="Arial Black,Impact,sans-serif">Q</text></svg>`;
 const tsel=()=>`<label>Squadra che gioca<select id="o_tm"><option value="0">${esc(S.n[0])}</option><option value="1">${esc(S.n[1])}</option></select></label>`;
 const nv=id=>+($('#'+id)?.value);
-const pnl=x=>`<details class="mnu"><summary class="b g">⋯ MENU</summary><div class="pnl">${x||''}<button class="b s" data-a="pz" ${st.p?'disabled':''}>PAUSA</button><button class="b s" data-a="rp" ${st.p?'':'disabled'}>RIPRENDI</button><button class="b s" data-a="un">ANNULLA ULTIMA AZIONE</button><button class="b g" data-a="rs">RIAVVIA</button><button class="b g" data-a="mn">ESCI AL MENU</button></div></details>`;
+const pnl=(x,nu)=>`<details class="mnu"><summary class="b g">⋯ MENU</summary><div class="pnl">${x||''}<button class="b s" data-a="pz" ${st.p?'disabled':''}>PAUSA</button><button class="b s" data-a="rp" ${st.p?'':'disabled'}>RIPRENDI</button>${nu?'':'<button class="b s" data-a="un">ANNULLA ULTIMA AZIONE</button>'}<button class="b g" data-a="rs">RIAVVIA</button><button class="b g" data-a="mn">ESCI AL MENU</button></div></details>`;
 const sb=()=>`<div class="sb">${[0,1].map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong id="sc${i}">${st.sc[i]}</strong><span><button data-a="adj" data-v="${i},-1" aria-label="Meno">−</button><button data-a="adj" data-v="${i},1" aria-label="Più">+</button></span></div>`).join('')}</div>`;
 function play(id,init,view,a,tf){
   stop();st=init();hist=[];
@@ -42,7 +43,7 @@ function fin(t){
   scr(`<section class="c fin"><h2>${t}</h2><div class="win">${w}</div><div class="res">${[0,1].map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong>${st.sc[i]}</strong>${st.ex?`<small>${st.ex[i]}</small>`:''}</div>`).join('')}</div>${st.note?`<p class="sub">${st.note}</p>`:''}<button class="b" data-a="ag">RIGIOCA</button><button class="b s" data-a="ot">SCEGLI UN ALTRO GIOCO</button><button class="b s" data-a="hm">TORNA ALLA HOME</button></section>`);conf();
 }
 const cust=k=>LS.g('cu_'+k,[]);
-const ID=['gh','fi','du','iv','da'];
+const ID=['gh','fi','du','iv','da','gs'];
 const GM={};
 function home(){stop();st=null;acts={go:teams,rl:rules,sd:()=>{S.snd=!S.snd;LS.s('snd',S.snd);home()}};
   scr(`<section class="c hero">${logo}<h1>QUIZ ARENA</h1><p class="sub">I giochi dei quiz TV da giocare con gli amici: due squadre, un organizzatore, nessuna registrazione.</p><button class="b" data-a="go">INIZIA A GIOCARE</button><button class="b s" data-a="rl">REGOLE DEI GIOCHI</button><button class="b s" data-a="sd">EFFETTI SONORI: ${S.snd?'ATTIVI':'SPENTI'}</button></section>`)}
@@ -54,7 +55,7 @@ function menu(){stop();st=null;acts={pr:prep,tm:teams,hm:home};
 const HINT={gh:'5 indizi separati da virgola, poi | e la soluzione. Esempio: ARTIFICIO,FATUO,AMICO,INCROCIATO,SACRO|FUOCO',fi:'domanda|risposta corretta|risposta sbagliata',du:'definizione|PAROLA',iv:'parola|categoria',da:'categoria|domanda|anno|spiegazione'};
 const NEED={gh:2,fi:3,du:2,iv:1,da:4};
 function prep(id){stop();acts={st:()=>{GM[id].rd();GM[id].go()},bk:menu,ac:()=>{const l=prompt(HINT[id]);if(!l)return;if(l.split('|').length<NEED[id]||(id=='gh'&&l.split('|')[0].split(',').length!=5)||(id=='da'&&isNaN(+l.split('|')[2]))){alert('Formato non valido. Usa: '+HINT[id]);return}const c=cust(id);c.push(l.trim());LS.s('cu_'+id,c);alert('Aggiunto!')}};
-  scr(`<section class="c"><div class="ic" style="font-size:3rem">${GM[id].i}</div><h2>${GM[id].n}</h2><p class="sub">${GM[id].r}</p><div class="cd opt">${GM[id].o()}</div><button class="b" data-a="st">INIZIA IL GIOCO</button><button class="b s" data-a="ac">AGGIUNGI ${id=='iv'?'PAROLA':id=='gh'?'PARTITA':'DOMANDA'}</button><button class="b s" data-a="bk">INDIETRO</button></section>`)}
+  scr(`<section class="c"><div class="ic" style="font-size:3rem">${GM[id].i}</div><h2>${GM[id].n}</h2><p class="sub">${GM[id].r}</p><div class="cd opt">${GM[id].o()}</div><button class="b" data-a="st">INIZIA IL GIOCO</button>${id=='gs'?'':`<button class="b s" data-a="ac">AGGIUNGI ${id=='iv'?'PAROLA':id=='gh'?'PARTITA':'DOMANDA'}</button>`}<button class="b s" data-a="bk">INDIETRO</button></section>`)}
 
 /* LA GHIGLIOTTINA */
 const ghS=()=>D.gh.concat(cust('gh').map(l=>{const[x,s]=l.split('|');return[x,s.trim().toUpperCase(),sh(D.DEC).slice(0,5).join(',')]}));
@@ -137,5 +138,49 @@ GM.da={n:'IL GIOCO DELLE DATE',s:"L'EREDITÀ",i:'📅',d:'Quattro anni, una sola
    cf:()=>{if(st.sel==null||st.lk)return alert('Seleziona prima un anno.');sv();st.lk=true;const ok=st.o[st.sel]==Q[st.i][2];st.res=ok?'ok':'ko';if(ok)st.sc[st.tm]+=10;snd(ok?'ok':'ko');d()},
    rv:()=>{if(st.lk)return;sv();st.lk=true;st.res='rv';d()},nq:()=>{sv();nq()}}),
   ms=>{if(st.lk)return;const b=st.left;st.left-=ms;tick10(b,st.left);const e=$('#tm');if(e)e.textContent=sec(st.left);if(st.left<=0){st.left=0;st.lk=true;st.res='to';snd('end');R()}})}};
+/* GUESS THE SONG */
+let CAT=null,CERR=null;
+const loadCat=()=>fetch('songs/songs.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>{const seen={};CAT=(Array.isArray(j)?j:j.songs||[]).filter(s=>s&&s.id&&s.title&&s.artist&&s.audio&&!seen[s.id]&&(seen[s.id]=1));CERR=null}).catch(()=>{CAT=null;CERR=1});
+const catMsg=()=>CERR?'Impossibile leggere songs/songs.json. Apri il sito pubblicato (Vercel) o un server locale: aprendo il file direttamente il browser blocca la lettura.':CAT===null?'Caricamento catalogo…':CAT.length?CAT.length+' canzoni disponibili':'Nessuna canzone: aggiungi i file in songs/ e le voci in songs/songs.json';
+const enc=p=>String(p||'').replace(/^\/+/,'').split('/').map(encodeURIComponent).join('/');
+const cvpl=on=>{const e=$('#cv');if(e)e.classList.toggle('pl',on)};
+const SG=id=>CAT.find(s=>s.id==id);
+const clip=(sg,from,to)=>{const my=++agen,ok=()=>my==agen,url=enc(sg.audio);
+ const fail=()=>{if(ok()&&st&&st.ph=='run'){st.err=true;R()}};
+ if(!au){au=new Audio();au.preload='auto'}
+ au.pause();
+ const go=()=>{if(!ok())return;try{au.currentTime=from}catch(e){}
+  au.play().then(()=>{if(!ok())return;const dd=isFinite(au.duration)?au.duration:to;if(from>=dd){au.pause();const g=$('#gm');if(g)g.textContent='Fine dell’audio';return}cvpl(true);setTimeout(()=>{if(ok()){au.pause();cvpl(false)}},Math.max(100,(Math.min(to,dd)-from)*1000))}).catch(fail)};
+ au.onerror=fail;
+ if(au.dataset.u!=url){au.dataset.u=url;au.src=url;au.load()}
+ if(au.readyState>=1)go();else au.addEventListener('loadedmetadata',go,{once:true})};
+GM.gs={n:'GUESS THE SONG',s:'QUIZ MUSICALE',i:'🎵',d:'Ascolta pochi secondi e indovina titolo e artista.',r:'Ogni squadra ha il suo turno. Il conduttore preme RIPRODUCI 3 SECONDI, poi INDIZIO +5 SEC quando serve. Titolo e artista giusti: +1; sbagliati: −1. La soluzione compare sempre prima della canzone successiva. Il timer scorre solo mentre si indovina.',
+ o:()=>{loadCat().then(()=>{const e=$('#cat');if(e)e.textContent=catMsg()});return`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label><p class="sub" id="cat">${catMsg()}</p>`},
+ rd:()=>{OP.gs={s:Math.max(10,nv('o_s')||60)}},
+ go:()=>{if(!CAT||!CAT.length){alert(catMsg());return}const o=OP.gs;
+  const pick=()=>{const u=CAT.filter(s=>!st.used.includes(s.id));if(!u.length){st.ph='cat';st.song=null;return false}const s=R0(u);st.used.push(s.id);st.song=s.id;st.pos=0;st.err=false;return true};
+  const sr=()=>{astop();st.left=o.s*1000;st.p=false;if(pick()){st.ph='run';snd('sw')}};
+  const rev=()=>{st.ph='sol';st.rv=false;const g=gen;setTimeout(()=>{if(g!=gen||!st||st.ph!='sol')return;st.rv=true;const e=$('#cv');if(e)e.classList.add('on')},60)};
+  const fn=()=>{st.ex=[0,1].map(i=>'Corrette: '+st.ok[i]+' · Sbagliate: '+st.ko[i]);fin('GUESS THE SONG')};
+  play('gs',()=>({sc:[0,0],stp:1,tm:0,ph:'ready',left:o.s*1000,used:[],song:null,pos:0,err:false,rv:false,ok:[0,0],ko:[0,0]}),
+  ()=>{const s=st,t=s.tm;
+   if(s.ph=='ready')return`<section class="c game t0"><p>${tn(0)} contro ${tn(1)}</p><h2>PRONTI?</h2><p class="sub">Ogni squadra ha ${o.s} secondi. Il tempo parte quando premi INIZIA ROUND.</p><button class="b big" data-a="sr">INIZIA ROUND</button>${pnl('',1)}</section>`;
+   if(s.ph=='tr')return`<section class="c game t${t}"><h2>TEMPO SCADUTO!</h2><p>${tn(t)}</p><p class="prog">${s.sc[t]} punti</p><p>Corrette: <b>${s.ok[t]}</b> · Sbagliate: <b>${s.ko[t]}</b></p><button class="b big" data-a="tt">TURNO DI ${esc(S.n[1-t]).toUpperCase()}</button></section>`;
+   if(s.ph=='cat')return`<section class="c game t${t}"><h2>CANZONI FINITE!</h2><p class="sub">Hai usato tutte le ${CAT.length} canzoni.</p><div class="row"><button class="b" data-a="rc">RICOMINCIA IL CATALOGO</button><button class="b s" data-a="te">TERMINA PARTITA</button></div>${pnl('',1)}</section>`;
+   const g=SG(s.song),sol=s.ph=='sol';
+   return`<section class="c game t${t}"><p>${tn(t)} · Punti <b id="pt">${s.sc[t]}</b> · <small>${sol?'SOLUZIONE':s.pos?'ASCOLTA E RISPONDI':'PREMI RIPRODUCI'}</small></p><div class="clock" id="tm">${sec(s.left)}</div><div class="cvw"><div class="cv ${sol&&s.rv?'on':''}" id="cv"><div class="cin"><div class="cf0"><span>?</span></div><div class="cb0">${sol?`<img src="${enc(g.cover)}" alt="" onerror="this.remove()">`:''}</div></div></div></div><div class="sol">${sol?`<b>${esc(g.title)}</b><span>${esc(g.artist)}</span>`:''}</div><p class="msg" id="gm">${s.err?'Audio non disponibile per questa traccia.':s.p?'IN PAUSA':''}</p>`+
+   (sol?'<button class="b big" data-a="nx">PROSSIMA CANZONE</button>':`<div class="row"><button class="b" data-a="pl">RIPRODUCI 3 SECONDI</button><button class="b s" data-a="hn" ${s.pos?'':'disabled'}>INDIZIO +5 SEC</button></div><div class="row"><button class="b big" data-a="cr">RISPOSTA CORRETTA</button><button class="b r big" data-a="wr">RISPOSTA SBAGLIATA</button></div>${s.err?'<button class="b s" data-a="sk">SALTA TRACCIA</button>':''}`)+pnl('',1)+'</section>'},
+  (sv,d)=>({sr:()=>{if(st.ph!='ready')return;sr();d()},
+   pl:()=>{if(st.ph!='run'||st.p)return;st.err=false;st.pos=Math.max(st.pos,3);clip(SG(st.song),0,3);d()},
+   hn:()=>{if(st.ph!='run'||st.p||!st.pos)return;const f=st.pos;st.pos+=5;clip(SG(st.song),f,f+5);d()},
+   cr:()=>{if(st.ph!='run'||st.p)return;astop();st.sc[st.tm]++;st.ok[st.tm]++;snd('ok');pts('+1');rev();d()},
+   wr:()=>{if(st.ph!='run'||st.p)return;astop();st.sc[st.tm]--;st.ko[st.tm]++;snd('ko');pts('−1','m');rev();d()},
+   nx:()=>{if(st.ph!='sol')return;astop();if(pick()){st.ph='run';snd('sw')}d()},
+   sk:()=>{if(st.ph!='run'||!st.err)return;astop();if(pick())st.ph='run';d()},
+   tt:()=>{if(st.ph!='tr')return;st.tm=1;sr();d()},
+   rc:()=>{if(st.ph!='cat')return;st.used=[];if(pick())st.ph='run';d()},
+   te:()=>{if(st.ph!='cat')return;fn()},
+   pz:()=>{astop();st.p=true;d()}}),
+  ms=>{if(st.ph!='run')return;const b=st.left;st.left-=ms;tick10(b,st.left);const e=$('#tm');if(e)e.textContent=sec(st.left);if(st.left<=0){st.left=0;astop();snd('end');if(st.tm==0){st.ph='tr';R()}else fn()}})}};
 home();
 })();
