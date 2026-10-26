@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "song_001",
+    "title": "Shake It Off",
+    "artist": "Taylor Swift",
+    "audio": "songs/audio/song_001.mp3",
+    "cover": "songs/covers/song_001.jpg"
+  },
+  {
+    "id": "song_002",
+    "title": "Party in the U.S.A.",
+    "artist": "Miley Cyrus",
+    "audio": "songs/audio/song_002.mp3",
+    "cover": "songs/covers/song_002.jpg"
+  }
+]
