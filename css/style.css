@@ -64,7 +64,6 @@ h1{background-size:200% 100%;animation:shn 5s linear infinite}@keyframes shn{to{
 .cd:hover{transform:translateY(-6px) rotate(-.4deg);box-shadow:0 18px 50px #9a741655}
 .cd.tcard{border:2px solid var(--c);background:#0d0b06ee}
 .grid>*{animation:in .6s both}.grid>:nth-child(2){animation-delay:.08s}.grid>:nth-child(3){animation-delay:.16s}.grid>:nth-child(4){animation-delay:.24s}.grid>:nth-child(5){animation-delay:.32s}
-.nx{width:min(100%,420px);height:6px;border-radius:9px;background:#ffffff1a;overflow:hidden}.nx i{display:block;height:100%;transform-origin:left;transform:scaleX(0);background:linear-gradient(90deg,var(--cy),var(--mg))}
 .clock.low{color:var(--ko);animation:lo .5s infinite alternate}@keyframes lo{to{transform:scale(1.12)}}
 .tc.act{animation:gl 1.6s ease-in-out infinite alternate}@keyframes gl{to{box-shadow:0 0 70px var(--c)}}
 .mid .q,.word{animation:pop .4s both}@keyframes pop{from{transform:scale(.6);opacity:0}}
