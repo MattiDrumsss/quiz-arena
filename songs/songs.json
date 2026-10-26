@@ -138,16 +138,145 @@
     "artist": "KAROL G, Nicki Minaj",
     "audio": "songs/audio/song_020.mp3",
     "cover": "songs/covers/song_020.jpg"
-  }
-,
+  },
   {
     "id": "song_021",
     "title": "Starships",
     "artist": "Nicki Minaj",
     "audio": "songs/audio/song_021.mp3",
     "cover": "songs/covers/song_021.jpg"
+  },
+  {
+    "id": "song_022",
+    "title": "7 Rings",
+    "artist": "Ariana Grande",
+    "audio": "songs/audio/song_022.mp3",
+    "cover": "songs/covers/song_022.jpg"
+  },
+  {
+    "id": "song_023",
+    "title": "Break Free",
+    "artist": "Ariana Grande",
+    "audio": "songs/audio/song_023.mp3",
+    "cover": "songs/covers/song_023.jpg"
+  },
+  {
+    "id": "song_024",
+    "title": "Bang Bang",
+    "artist": "Jassie J, Ariana Grande, Nicki Minaj",
+    "audio": "songs/audio/song_024.mp3",
+    "cover": "songs/covers/song_024.jpg"
+  },
+  {
+    "id": "song_025",
+    "title": "Save Your Tears",
+    "artist": "The Weeknd, Ariana Grande",
+    "audio": "songs/audio/song_025.mp3",
+    "cover": "songs/covers/song_025.jpg"
+  },
+  {
+    "id": "song_026",
+    "title": "Love Again",
+    "artist": "Dua Lipa",
+    "audio": "songs/audio/song_026.mp3",
+    "cover": "songs/covers/song_026.jpg"
+  },
+  {
+    "id": "song_027",
+    "title": "Levitating",
+    "artist": "Dua Lipa, DaBaby",
+    "audio": "songs/audio/song_027.mp3",
+    "cover": "songs/covers/song_027.jpg"
+  },
+  {
+    "id": "song_028",
+    "title": "Break My Heart",
+    "artist": "Dua Lipa",
+    "audio": "songs/audio/song_028.mp3",
+    "cover": "songs/covers/song_028.jpg"
+  },
+  {
+    "id": "song_029",
+    "title": "One Kiss",
+    "artist": "Dua Lipa, Calvin Harris",
+    "audio": "songs/audio/song_029.mp3",
+    "cover": "songs/covers/song_029.jpg"
+  },
+  {
+    "id": "song_030",
+    "title": "Houdini",
+    "artist": "Dua Lipa",
+    "audio": "songs/audio/song_030.mp3",
+    "cover": "songs/covers/song_030.jpg"
+  },
+  {
+    "id": "song_031",
+    "title": "Dance The Night",
+    "artist": "Dua Lipa",
+    "audio": "songs/audio/song_031.mp3",
+    "cover": "songs/covers/song_031.jpg"
+  },
+  {
+    "id": "song_032",
+    "title": "Cold Heart",
+    "artist": "Dua Lipa, Elton John",
+    "audio": "songs/audio/song_032.mp3",
+    "cover": "songs/covers/song_032.jpg"
+  },
+  {
+    "id": "song_033",
+    "title": "Espresso",
+    "artist": "Sabrina Carpenter",
+    "audio": "songs/audio/song_033.mp3",
+    "cover": "songs/covers/song_033.jpg"
+  },
+  {
+    "id": "song_034",
+    "title": "Juno",
+    "artist": "Sabrina Carpenter",
+    "audio": "songs/audio/song_034.mp3",
+    "cover": "songs/covers/song_034.jpg"
+  },
+  {
+    "id": "song_035",
+    "title": "Taste",
+    "artist": "Sabrina Carpenter",
+    "audio": "songs/audio/song_035.mp3",
+    "cover": "songs/covers/song_035.jpg"
+  },
+  {
+    "id": "song_036",
+    "title": "What Makes You Beautiful",
+    "artist": "One Direction",
+    "audio": "songs/audio/song_036.mp3",
+    "cover": "songs/covers/song_036.jpg"
+  },
+  {
+    "id": "song_037",
+    "title": "Night Changes",
+    "artist": "One Direction",
+    "audio": "songs/audio/song_037.mp3",
+    "cover": "songs/covers/song_037.jpg"
+  },
+  {
+    "id": "song_038",
+    "title": "Story of My Life",
+    "artist": "One Direction",
+    "audio": "songs/audio/song_038.mp3",
+    "cover": "songs/covers/song_038.jpg"
+  },
+  {
+    "id": "song_039",
+    "title": "Wannabe",
+    "artist": "Spice Girls",
+    "audio": "songs/audio/song_039.mp3",
+    "cover": "songs/covers/song_039.jpg"
   }
 ]
+
+
+
+
 
 
 
