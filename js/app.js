@@ -10,6 +10,7 @@ let st=null,acts={},tk=null,gen=0,lt=0,hist=[],ac,OP={},R=()=>{};
 const stop=()=>{clearInterval(tk);tk=null;gen++};
 const run=f=>{let l=Date.now();tk=setInterval(()=>{const n=Date.now(),d=n-l;l=n;if(st&&!st.p&&!st.done)f(d)},100)};
 const pts=(t,k)=>{const e=document.createElement('div');e.className='pts '+(k||'');e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),950)};
+const bn=t=>{const e=document.createElement('div');e.className='bn';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)};
 const fx=k=>{const e=document.createElement('div');e.className='flash '+k;document.body.appendChild(e);setTimeout(()=>e.remove(),700)};
 const conf=()=>{for(let i=0;i<70;i++){const e=document.createElement('i');e.className='cf';e.style.cssText=`left:${Math.random()*100}vw;background:${R0(['#ffe08a','#b8860b','#f5c542','#27f59a','#ffd23f'])};animation-delay:${Math.random()*.8}s;--x:${Math.random()*200-100}px`;document.body.appendChild(e);setTimeout(()=>e.remove(),3800)}};
 function snd(t){if(t=='ok'||t=='ko')fx(t);if(!S.snd)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const f={ok:[660,880],ko:[220,150],tick:[900],end:[300,200,120],win:[523,659,784,1047],sw:[500,650]}[t];f.forEach((h,i)=>{const o=ac.createOscillator(),g=ac.createGain(),s=ac.currentTime+i*.12;o.frequency.value=h;o.type=t=='ko'||t=='end'?'sawtooth':'sine';o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.15,s);g.gain.exponentialRampToValueAtTime(.001,s+.2);o.start(s);o.stop(s+.22)})}catch(e){}}
@@ -44,7 +45,7 @@ const cust=k=>LS.g('cu_'+k,[]);
 const ID=['gh','fi','du','iv','da'];
 const GM={};
 function home(){stop();st=null;acts={go:teams,rl:rules,sd:()=>{S.snd=!S.snd;LS.s('snd',S.snd);home()}};
-  scr(`<section class="c">${logo}<h1>QUIZ ARENA</h1><p class="sub">I giochi dei quiz TV da giocare con gli amici: due squadre, un organizzatore, nessuna registrazione.</p><button class="b" data-a="go">INIZIA A GIOCARE</button><button class="b s" data-a="rl">REGOLE DEI GIOCHI</button><button class="b s" data-a="sd">EFFETTI SONORI: ${S.snd?'ATTIVI':'SPENTI'}</button></section>`)}
+  scr(`<section class="c hero">${logo}<h1>QUIZ ARENA</h1><p class="sub">I giochi dei quiz TV da giocare con gli amici: due squadre, un organizzatore, nessuna registrazione.</p><button class="b" data-a="go">INIZIA A GIOCARE</button><button class="b s" data-a="rl">REGOLE DEI GIOCHI</button><button class="b s" data-a="sd">EFFETTI SONORI: ${S.snd?'ATTIVI':'SPENTI'}</button></section>`)}
 function rules(){acts={hm:home};scr(`<section class="c"><h2>REGOLE DEI GIOCHI</h2><div class="grid">${ID.map(i=>`<div class="cd"><div class="ic">${GM[i].i}</div><h2>${GM[i].n}</h2><p>${GM[i].r}</p></div>`).join('')}</div><button class="b" data-a="hm">TORNA ALLA HOME</button></section>`)}
 function teams(){acts={hm:home,ok:()=>{S.n=[0,1].map(i=>$('#n'+i).value.trim()||'Squadra '+(i+1));LS.s('n',S.n);menu()}};
   scr(`<section class="c"><h2>CHI GIOCA?</h2><div class="grid">${[0,1].map(i=>`<div class="cd tcard t${i}"><div class="ic">${i?'🔥':'⚡'}</div><h2>SQUADRA ${i+1}</h2><input class="fld" id="n${i}" maxlength="24" placeholder="Squadra ${i+1}" value="${S.n[i]=='Squadra '+(i+1)?'':esc(S.n[i])}" autocomplete="off"></div>`).join('')}</div><button class="b" data-a="ok">CONFERMA</button><button class="b s" data-a="hm">INDIETRO</button></section>`)}
@@ -94,11 +95,14 @@ GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: 
  rd:()=>{OP.du={s:Math.max(10,nv('o_s')||60)}},
  go:()=>{const o=OP.du,Q=sh(D.du.concat(cust('du')).map(l=>l.split('|')).filter(x=>x[0]&&x[1]&&x[1].trim()));
   const W=()=>Q[st.i%Q.length][1].toUpperCase(),N=()=>W().replace(/ /g,'').length;
-  const cells=()=>{let k=0;return[...W()].map(c=>{if(c==' ')return'<span class="cell sp"></span>';const v=st.sw>0||k<st.rev,h=`<span class="cell ${v?'on':''} ${st.sw>0?'cas':''}" style="--d:${k*70}ms"><span class="l">${esc(c)}</span></span>`;k++;return h}).join('')};
+  const cells=()=>{let k=0;return[...W()].map(c=>{if(c==' ')return'<span class="cell sp"></span>';const v=st.sw>0||k<st.rev;k++;return`<span class="cell ${v?'on':''}"><span class="in"><span class="fr"></span><span class="bk">${esc(c)}</span></span></span>`}).join('')};
   play('du',()=>({sc:[0,0],stp:1,l:[o.s*1000,o.s*1000],a:0,i:0,rev:0,rt:0,sw:0,msg:'Inizia '+S.n[0]}),
-  ()=>{const s=st,tc=i=>`<div class="tc t${i} ${s.a==i?'act':''}"><b>${esc(S.n[i])}${s.a==i?' · IN GIOCO':''}</b><div class="clock" id="d${i}">${sec(s.l[i])}</div></div>`;
-   return`<section class="duel">${tc(0)}<div class="mid"><small>Definizione</small><h2 class="q">${esc(Q[s.i%Q.length][0])}</h2><div class="cells" id="wd">${cells()}</div><div class="nx"><i id="nx"></i></div><p class="msg">${s.p?'IN PAUSA':esc(s.msg)}</p><button class="b big" data-a="ps" ${s.sw>0?'disabled':''}>PASSA ALL'ALTRA SQUADRA</button></div>${tc(1)}${pnl()}</section>`},
-  (sv,d)=>({ps:()=>{if(st.sw>0||st.done)return;sv();snd('sw');st.a=1-st.a;st.sw=1500;st.msg='Cambio turno: tocca a '+S.n[st.a];d()}}),
+  ()=>{const s=st,tc=i=>`<div class="tc t${i} ${s.a==i?'act':''}" id="tc${i}"><b id="lb${i}">${esc(S.n[i])}${s.a==i?' · IN GIOCO':''}</b><div class="clock" id="d${i}">${sec(s.l[i])}</div></div>`;
+   return`<section class="duel">${tc(0)}<div class="mid"><small>Definizione</small><h2 class="q">${esc(Q[s.i%Q.length][0])}</h2><div class="cells" id="wd" style="--n:${[...W()].length}">${cells()}</div><div class="nx"><i id="nx"></i></div><p class="msg" id="mg">${s.p?'IN PAUSA':esc(s.msg)}</p><button class="b big" id="psb" data-a="ps" ${s.sw>0?'disabled':''}>PASSA ALL'ALTRA SQUADRA</button></div>${tc(1)}${pnl()}</section>`},
+  (sv,d)=>({ps:()=>{if(st.sw>0||st.done)return;sv();snd('sw');st.a=1-st.a;st.msg='Cambio turno: tocca a '+S.n[st.a];
+   const cs=[...document.querySelectorAll('#wd .cell:not(.sp)')];let m=0;cs.forEach(c=>{if(!c.classList.contains('on')){c.style.setProperty('--d',m++*90+'ms');c.classList.add('on')}});
+   st.sw=Math.max(1500,m*90+1100);bn('TOCCA A '+S.n[st.a].toUpperCase());
+   [0,1].forEach(i=>{const t=$('#tc'+i),l=$('#lb'+i);if(t)t.classList.toggle('act',st.a==i);if(l)l.textContent=S.n[i]+(st.a==i?' · IN GIOCO':'')});const g=$('#mg');if(g)g.textContent=st.msg;const p=$('#psb');if(p)p.disabled=true}}),
   ms=>{if(st.sw>0){st.sw-=ms;if(st.sw<=0){st.sw=0;st.i++;st.rev=0;st.rt=0;st.msg='Tocca a '+S.n[st.a];R()}return}
    const a=st.a,b=st.l[a];st.l[a]-=ms;tick10(b,st.l[a]);const e=$('#d'+a);if(e){e.textContent=sec(st.l[a]);e.classList.toggle('low',sec(st.l[a])<=10)}
    if(st.l[a]<=0){st.l[a]=0;snd('end');st.ex=[0,1].map(i=>'Tempo rimasto: '+sec(st.l[i])+' s');st.sc[1-a]+=1;st.note='TEMPO SCADUTO per '+esc(S.n[a])+'!';return fin('IL DUELLO')}
@@ -114,7 +118,7 @@ GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'I compagni sugg
    if(s.ph=='prep')return`<section class="c game t${t}"><h2>${tn(t)}</h2><p class="sub">I suggeritori guardano lo schermo, chi indovina si gira. Il timer parte subito.</p><button class="b big" data-a="it">INIZIA TURNO</button>${pnl()}</section>`;
    if(s.ph=='run')return`<section class="c game t${t}"><p>${tn(t)} · Punti <b>${s.sc[t]}</b> · Suggerisce: giocatore ${s.wi%3+1}</p><div class="clock" id="tm">${fm(s.left)}</div><div class="word">${esc(P[s.wi%P.length])}</div><p class="msg">${s.p?'IN PAUSA':''}</p><div class="row"><button class="b big" data-a="ok">DOMANDA GIUSTA</button><button class="b r big" data-a="ko">DOMANDA SBAGLIATA</button></div>${pnl()}</section>`;
    return`<section class="c game t${t}"><h2>TEMPO SCADUTO!</h2><p>${tn(t)}</p><p class="prog">${s.sc[t]} punti</p><p>Indovinate: <b>${s.g[t]}</b> · Sbagliate: <b>${s.er[t]}</b></p><button class="b" data-a="nx">${s.dn[1-t]?'VEDI IL RISULTATO':'TURNO DELL’ALTRA SQUADRA'}</button></section>`},
-  (sv,d)=>({it:()=>{sv();st.ph='run';st.p=false;snd('sw');d()},
+  (sv,d)=>({it:()=>{sv();st.ph='run';st.p=false;snd('sw');bn(S.n[st.tm].toUpperCase());d()},
    ok:()=>{if(st.ph!='run'||st.left<=0)return;sv();snd('ok');st.sc[st.tm]++;st.g[st.tm]++;pts('+1');nw();d()},
    ko:()=>{if(st.ph!='run'||st.left<=0)return;sv();snd('ko');st.sc[st.tm]--;st.er[st.tm]++;pts('−1','m');nw();d()},
    nx:()=>{if(st.dn[1-st.tm]){st.note='Risultato finale dopo i due turni.';return fin("L'INTESA VINCENTE")}st.tm=1-st.tm;st.ph='prep';st.left=o.s*1000;nw();d()}}),
