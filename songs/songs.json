@@ -12,24 +12,21 @@
     "artist": "Miley Cyrus",
     "audio": "songs/audio/song_002.mp3",
     "cover": "songs/covers/song_002.jpg"
-  }
-],
+  },
   {
     "id": "song_003",
     "title": "Wrecking Ball",
     "artist": "Katy Perry",
     "audio": "songs/audio/song_003.mp3",
     "cover": "songs/covers/song_003.jpg"
-  }
-],
+  },
   {
     "id": "song_004",
     "title": "Call Me Maybe",
     "artist": "Carly Rae Jepsen",
     "audio": "songs/audio/song_004.mp3",
     "cover": "songs/covers/song_004.jpg"
-  }
-],
+  },
   {
     "id": "song_005",
     "title": "California Gurls",
@@ -44,5 +41,115 @@
     "artist": "Katy Perry",
     "audio": "songs/audio/song_006.mp3",
     "cover": "songs/covers/song_006.jpg"
+  },
+  {
+    "id": "song_007",
+    "title": "Last Friday Night",
+    "artist": "Katy Perry",
+    "audio": "songs/audio/song_007.mp3",
+    "cover": "songs/covers/song_007.jpg"
+  },
+  {
+    "id": "song_008",
+    "title": "Roar",
+    "artist": "Katy Perry",
+    "audio": "songs/audio/song_008.mp3",
+    "cover": "songs/covers/song_008.jpg"
+  },
+  {
+    "id": "song_009",
+    "title": "Die Young",
+    "artist": "Kesha",
+    "audio": "songs/audio/song_009.mp3",
+    "cover": "songs/covers/song_009.jpg"
+  },
+  {
+    "id": "song_010",
+    "title": "Tik Tok",
+    "artist": "Kesha",
+    "audio": "songs/audio/song_010.mp3",
+    "cover": "songs/covers/song_010.jpg"
+  },
+  {
+    "id": "song_011",
+    "title": "Timber",
+    "artist": "Pitbull, Kesha",
+    "audio": "songs/audio/song_011.mp3",
+    "cover": "songs/covers/song_011.jpg"
+  },
+  {
+    "id": "song_012",
+    "title": "...Baby One More Time",
+    "artist": "Britney Spears",
+    "audio": "songs/audio/song_012.mp3",
+    "cover": "songs/covers/song_012.jpg"
+  },
+  {
+    "id": "song_013",
+    "title": "Just Dance",
+    "artist": "Lady Gaga",
+    "audio": "songs/audio/song_013.mp3",
+    "cover": "songs/covers/song_013.jpg"
+  },
+  {
+    "id": "song_014",
+    "title": "Poker Face",
+    "artist": "Lady Gaga",
+    "audio": "songs/audio/song_014.mp3",
+    "cover": "songs/covers/song_014.jpg"
+  },
+  {
+    "id": "song_015",
+    "title": "Bad Romance",
+    "artist": "Lady Gaga",
+    "audio": "songs/audio/song_015.mp3",
+    "cover": "songs/covers/song_015.jpg"
+  },
+  {
+    "id": "song_016",
+    "title": "Abracadabra",
+    "artist": "Lady Gaga",
+    "audio": "songs/audio/song_016.mp3",
+    "cover": "songs/covers/song_016.jpg"
+  },
+  {
+    "id": "song_017",
+    "title": "Bloody Mary",
+    "artist": "Lady Gaga",
+    "audio": "songs/audio/song_017.mp3",
+    "cover": "songs/covers/song_017.jpg"
+  },
+  {
+    "id": "song_018",
+    "title": "Umbrella",
+    "artist": "Rihanna",
+    "audio": "songs/audio/song_018.mp3",
+    "cover": "songs/covers/song_018.jpg"
+  },
+  {
+    "id": "song_019",
+    "title": "Diamonds",
+    "artist": "Rihanna",
+    "audio": "songs/audio/song_019.mp3",
+    "cover": "songs/covers/song_019.jpg"
+  },
+  {
+    "id": "song_020",
+    "title": "Tusa",
+    "artist": "KAROL G, Nicki Minaj",
+    "audio": "songs/audio/song_020.mp3",
+    "cover": "songs/covers/song_020.jpg"
   }
-]
+,
+  {
+    "id": "song_021",
+    "title": "Starships",
+    "artist": "Nicki Minaj",
+    "audio": "songs/audio/song_021.mp3",
+    "cover": "songs/covers/song_021.jpg"
+  }
+
+
+
+
+
