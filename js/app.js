@@ -9,20 +9,21 @@ const tn=i=>`<span class="tg t${i}">${esc(S.n[i])}</span>`;
 let st=null,acts={},tk=null,gen=0,lt=0,hist=[],ac,OP={},R=()=>{};
 const stop=()=>{clearInterval(tk);tk=null;gen++};
 const run=f=>{let l=Date.now();tk=setInterval(()=>{const n=Date.now(),d=n-l;l=n;if(st&&!st.p&&!st.done)f(d)},100)};
+const pts=(t,k)=>{const e=document.createElement('div');e.className='pts '+(k||'');e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),950)};
 const fx=k=>{const e=document.createElement('div');e.className='flash '+k;document.body.appendChild(e);setTimeout(()=>e.remove(),700)};
-const conf=()=>{for(let i=0;i<70;i++){const e=document.createElement('i');e.className='cf';e.style.cssText=`left:${Math.random()*100}vw;background:${R0(['#22e4ff','#ff2bd6','#7b3dff','#27f59a','#ffd23f'])};animation-delay:${Math.random()*.8}s;--x:${Math.random()*200-100}px`;document.body.appendChild(e);setTimeout(()=>e.remove(),3800)}};
+const conf=()=>{for(let i=0;i<70;i++){const e=document.createElement('i');e.className='cf';e.style.cssText=`left:${Math.random()*100}vw;background:${R0(['#ffe08a','#b8860b','#f5c542','#27f59a','#ffd23f'])};animation-delay:${Math.random()*.8}s;--x:${Math.random()*200-100}px`;document.body.appendChild(e);setTimeout(()=>e.remove(),3800)}};
 function snd(t){if(t=='ok'||t=='ko')fx(t);if(!S.snd)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const f={ok:[660,880],ko:[220,150],tick:[900],end:[300,200,120],win:[523,659,784,1047],sw:[500,650]}[t];f.forEach((h,i)=>{const o=ac.createOscillator(),g=ac.createGain(),s=ac.currentTime+i*.12;o.frequency.value=h;o.type=t=='ko'||t=='end'?'sawtooth':'sine';o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.15,s);g.gain.exponentialRampToValueAtTime(.001,s+.2);o.start(s);o.stop(s+.22)})}catch(e){}}
 const tick10=(b,n)=>{if(sec(b)!=sec(n)&&sec(n)<=10&&sec(n)>0)snd('tick')};
 const scr=h=>{A.innerHTML=h;A.classList.remove('ani');void A.offsetWidth;A.classList.add('ani');window.scrollTo(0,0)};
-A.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const a=b.dataset.a,n=Date.now();if(a!='adj'&&n-lt<300)return;lt=n;if(acts[a])acts[a](b.dataset.v)});
-const logo=`<svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22e4ff"/><stop offset="1" stop-color="#ff2bd6"/></linearGradient></defs><polygon points="60,6 108,33 108,87 60,114 12,87 12,33" fill="#0a0f2e" stroke="url(#lg)" stroke-width="5"/><text x="60" y="80" text-anchor="middle" font-size="58" font-weight="900" fill="url(#lg)" font-family="Arial Black,Impact,sans-serif">Q</text></svg>`;
+A.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const a=b.dataset.a,n=Date.now();if(st&&st.done&&!['ag','ot','hm'].includes(a))return;if(a!='adj'&&n-lt<300)return;lt=n;if(acts[a])acts[a](b.dataset.v)});
+const logo=`<svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><polygon points="60,6 108,33 108,87 60,114 12,87 12,33" fill="#0d0b06" stroke="url(#lg)" stroke-width="5"/><text x="60" y="80" text-anchor="middle" font-size="58" font-weight="900" fill="url(#lg)" font-family="Arial Black,Impact,sans-serif">Q</text></svg>`;
 const tsel=()=>`<label>Squadra che gioca<select id="o_tm"><option value="0">${esc(S.n[0])}</option><option value="1">${esc(S.n[1])}</option></select></label>`;
 const nv=id=>+($('#'+id)?.value);
-const pnl=x=>`<details class="mnu"><summary class="b s">⋯ MENU</summary><div class="pnl">${x||''}<button class="b s" data-a="pz" ${st.p?'disabled':''}>PAUSA</button><button class="b s" data-a="rp" ${st.p?'':'disabled'}>RIPRENDI</button><button class="b s" data-a="un">ANNULLA ULTIMA AZIONE</button><button class="b s" data-a="rs">RIAVVIA</button><button class="b s" data-a="mn">ESCI AL MENU</button></div></details>`;
+const pnl=x=>`<details class="mnu"><summary class="b g">⋯ MENU</summary><div class="pnl">${x||''}<button class="b s" data-a="pz" ${st.p?'disabled':''}>PAUSA</button><button class="b s" data-a="rp" ${st.p?'':'disabled'}>RIPRENDI</button><button class="b s" data-a="un">ANNULLA ULTIMA AZIONE</button><button class="b g" data-a="rs">RIAVVIA</button><button class="b g" data-a="mn">ESCI AL MENU</button></div></details>`;
 const sb=()=>`<div class="sb">${[0,1].map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong id="sc${i}">${st.sc[i]}</strong><span><button data-a="adj" data-v="${i},-1" aria-label="Meno">−</button><button data-a="adj" data-v="${i},1" aria-label="Più">+</button></span></div>`).join('')}</div>`;
 function play(id,init,view,a,tf){
   stop();st=init();hist=[];
-  const draw=()=>{const e=$('#ai');if(e&&st&&st.ans!==undefined)st.ans=e.value;A.innerHTML=view()};
+  const draw=()=>{const e=$('#ai');if(e&&st&&st.ans!==undefined)st.ans=e.value;A.innerHTML=`<div class="gtl">${GM[id].n}</div>`+view()};
   R=draw;
   const sv=()=>{hist.push(JSON.stringify(st));if(hist.length>60)hist.shift()};
   acts=Object.assign({
@@ -91,7 +92,7 @@ GM.fi={n:'IL GIOCO FINALE',s:'AVANTI UN ALTRO!',i:'🎯',d:'21 risposte sbagliat
 GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: indovina la parola prima che il tempo finisca.',r:'Una definizione e una parola con le lettere nascoste: una nuova lettera appare ogni 2 secondi, l’ultima resta nascosta. La squadra risponde a voce; il conduttore preme «PASSA ALL’ALTRA SQUADRA». Il timer della squadra attiva scorre, l’altro aspetta. Chi finisce il tempo perde.',
  o:()=>`<label>Secondi per squadra<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
  rd:()=>{OP.du={s:Math.max(10,nv('o_s')||60)}},
- go:()=>{const o=OP.du,Q=sh(D.du.concat(cust('du')).map(l=>l.split('|')));
+ go:()=>{const o=OP.du,Q=sh(D.du.concat(cust('du')).map(l=>l.split('|')).filter(x=>x[0]&&x[1]&&x[1].trim()));
   const W=()=>Q[st.i%Q.length][1].toUpperCase(),N=()=>W().replace(/ /g,'').length;
   const cells=()=>{let k=0;return[...W()].map(c=>{if(c==' ')return'<span class="cell sp"></span>';const v=st.sw>0||k<st.rev,h=`<span class="cell ${v?'on':''} ${st.sw>0?'cas':''}" style="--d:${k*70}ms"><span class="l">${esc(c)}</span></span>`;k++;return h}).join('')};
   play('du',()=>({sc:[0,0],stp:1,l:[o.s*1000,o.s*1000],a:0,i:0,rev:0,rt:0,sw:0,msg:'Inizia '+S.n[0]}),
@@ -101,7 +102,7 @@ GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: 
   ms=>{if(st.sw>0){st.sw-=ms;if(st.sw<=0){st.sw=0;st.i++;st.rev=0;st.rt=0;st.msg='Tocca a '+S.n[st.a];R()}return}
    const a=st.a,b=st.l[a];st.l[a]-=ms;tick10(b,st.l[a]);const e=$('#d'+a);if(e){e.textContent=sec(st.l[a]);e.classList.toggle('low',sec(st.l[a])<=10)}
    if(st.l[a]<=0){st.l[a]=0;snd('end');st.ex=[0,1].map(i=>'Tempo rimasto: '+sec(st.l[i])+' s');st.sc[1-a]+=1;st.note='TEMPO SCADUTO per '+esc(S.n[a])+'!';return fin('IL DUELLO')}
-   st.rt+=ms;if(st.rt>=2000){st.rt-=2000;if(st.rev<N()-1){st.rev++;const c=document.querySelectorAll('#wd .cell:not(.sp)')[st.rev-1];if(c){c.classList.add('on','fresh');snd('tick')}}}const nb=$('#nx');if(nb)nb.style.transform='scaleX('+Math.min(1,st.rt/2000)+')'})}};
+   st.rt+=ms;const tg=Math.min(N()-1,Math.floor(st.rt/2000));while(st.rev<tg){st.rev++;const c=document.querySelectorAll('#wd .cell:not(.sp)')[st.rev-1];if(c)c.classList.add('on','fresh');snd('tick')}const nb=$('#nx');if(nb)nb.style.transform='scaleX('+(st.rev>=N()-1?0:(st.rt%2000)/2000)+')'})}};
 /* INTESA VINCENTE */
 GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'I compagni suggeriscono una parola alla volta: chi indovina vince punti.',r:'Scegli la squadra. I suggeritori guardano lo schermo, chi indovina si gira. In 60 secondi dite una parola alla volta per far indovinare la parola segreta. Giusta +1, sbagliata −1. Poi gioca l’altra squadra.',
  o:()=>tsel()+`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
@@ -114,8 +115,8 @@ GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'I compagni sugg
    if(s.ph=='run')return`<section class="c game t${t}"><p>${tn(t)} · Punti <b>${s.sc[t]}</b> · Suggerisce: giocatore ${s.wi%3+1}</p><div class="clock" id="tm">${fm(s.left)}</div><div class="word">${esc(P[s.wi%P.length])}</div><p class="msg">${s.p?'IN PAUSA':''}</p><div class="row"><button class="b big" data-a="ok">DOMANDA GIUSTA</button><button class="b r big" data-a="ko">DOMANDA SBAGLIATA</button></div>${pnl()}</section>`;
    return`<section class="c game t${t}"><h2>TEMPO SCADUTO!</h2><p>${tn(t)}</p><p class="prog">${s.sc[t]} punti</p><p>Indovinate: <b>${s.g[t]}</b> · Sbagliate: <b>${s.er[t]}</b></p><button class="b" data-a="nx">${s.dn[1-t]?'VEDI IL RISULTATO':'TURNO DELL’ALTRA SQUADRA'}</button></section>`},
   (sv,d)=>({it:()=>{sv();st.ph='run';st.p=false;snd('sw');d()},
-   ok:()=>{if(st.ph!='run'||st.left<=0)return;sv();snd('ok');st.sc[st.tm]++;st.g[st.tm]++;nw();d()},
-   ko:()=>{if(st.ph!='run'||st.left<=0)return;sv();snd('ko');st.sc[st.tm]--;st.er[st.tm]++;nw();d()},
+   ok:()=>{if(st.ph!='run'||st.left<=0)return;sv();snd('ok');st.sc[st.tm]++;st.g[st.tm]++;pts('+1');nw();d()},
+   ko:()=>{if(st.ph!='run'||st.left<=0)return;sv();snd('ko');st.sc[st.tm]--;st.er[st.tm]++;pts('−1','m');nw();d()},
    nx:()=>{if(st.dn[1-st.tm]){st.note='Risultato finale dopo i due turni.';return fin("L'INTESA VINCENTE")}st.tm=1-st.tm;st.ph='prep';st.left=o.s*1000;nw();d()}}),
   ms=>{if(st.ph!='run')return;const b=st.left;st.left-=ms;tick10(b,st.left);const e=$('#tm');if(e)e.textContent=fm(st.left);if(st.left<=0){st.left=0;st.ph='res';st.dn[st.tm]=true;snd('end');R()}})}};
 /* GIOCO DELLE DATE */
