@@ -5,12 +5,13 @@ const LS={g:(k,d)=>{try{const v=localStorage.getItem('qa_'+k);return v==null?d:J
 const S={n:LS.g('n',['Squadra 1','Squadra 2']),snd:LS.g('snd',true)};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const norm=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLowerCase();
+const fmc=ms=>{const c=Math.max(0,Math.ceil(ms/10));return String(Math.floor(c/100)).padStart(2,'0')+'.'+String(c%100).padStart(2,'0')};
 const sec=ms=>Math.max(0,Math.ceil(ms/1000)),fm=ms=>{const s=sec(ms);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 const tn=i=>`<span class="tg t${i}">${esc(S.n[i])}</span>`;
 let st=null,acts={},tk=null,gen=0,lt=0,hist=[],ac,OP={},R=()=>{};
 let au=null,agen=0;const astop=()=>{agen++;if(au)au.pause()};
 const stop=()=>{astop();clearInterval(tk);tk=null;gen++};
-const run=f=>{let l=Date.now();tk=setInterval(()=>{const n=Date.now(),d=n-l;l=n;if(st&&!st.p&&!st.done)f(d)},100)};
+const run=(f,iv)=>{let l=Date.now();tk=setInterval(()=>{const n=Date.now(),d=n-l;l=n;if(st&&!st.p&&!st.done)f(d)},iv||100)};
 const ask=(m,f)=>{const o=document.createElement('div');o.className='mdl';o.innerHTML=`<div class="mbx"><p>${esc(m)}</p><div class="row"><button class="b" data-m="1">CONFERMA</button><button class="b s" data-m="0">ANNULLA</button></div></div>`;o.addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;o.remove();if(b.dataset.m=='1')f()});document.body.appendChild(o)};
 const pts=(t,k)=>{const e=document.createElement('div');e.className='pts '+(k||'');e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),950)};
 const bn=t=>{const e=document.createElement('div');e.className='bn';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)};
@@ -26,7 +27,7 @@ const tsel=()=>`<label>Squadra che gioca<select id="o_tm"><option value="0">${es
 const nv=id=>+($('#'+id)?.value);
 const pnl=(x,nu)=>`<details class="mnu"><summary class="b g">⋯ MENU</summary><div class="pnl">${x||''}<button class="b s" data-a="pz" ${st.p?'disabled':''}>PAUSA</button><button class="b s" data-a="rp" ${st.p?'':'disabled'}>RIPRENDI</button>${nu?'':'<button class="b s" data-a="un">ANNULLA ULTIMA AZIONE</button>'}<button class="b g" data-a="rs">RIAVVIA</button><button class="b g" data-a="mn">ESCI AL MENU</button></div></details>`;
 const sb=()=>`<div class="sb">${[0,1].map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong id="sc${i}">${st.sc[i]}</strong><span><button data-a="adj" data-v="${i},-1" aria-label="Meno">−</button><button data-a="adj" data-v="${i},1" aria-label="Più">+</button></span></div>`).join('')}</div>`;
-function play(id,init,view,a,tf){
+function play(id,init,view,a,tf,iv){
   stop();st=init();hist=[];
   const draw=()=>{const e=$('#ai');if(e&&st&&st.ans!==undefined)st.ans=e.value;A.innerHTML=`<div class="gtl">${GM[id].n}</div>`+view()+(st&&st.p&&!st.done?'<div class="pov"><h2>IN PAUSA</h2><button class="b big" data-a="rp">RIPRENDI</button><button class="b g" data-a="rs">RIAVVIA</button><button class="b g" data-a="mn">ESCI AL MENU</button></div>':'')};
   R=draw;
@@ -39,7 +40,7 @@ function play(id,init,view,a,tf){
     mn:()=>ask('Tornare al menu? I progressi andranno persi.',menu),
     hm:home,ot:menu,ag:()=>GM[id].go()
   },a(sv,draw));
-  draw();run(tf);
+  draw();run(tf,iv);
 }
 function fin(t){
   stop();st.done=true;snd(st.solo&&!st.won?'ko':'win');const[a,b]=st.sc,w=st.solo?(st.won?(st.wt||'HAI VINTO!'):'HAI PERSO'):a==b?'PAREGGIO':'VINCE '+esc(S.n[a>b?0:1]).toUpperCase();
@@ -101,16 +102,16 @@ GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: 
   const W=()=>Q[st.i%Q.length][1].toUpperCase(),N=()=>W().replace(/ /g,'').length,LN=i=>Q[i%Q.length][1].replace(/ /g,'').length,mo=n=>sh([...Array(n).keys()]);
   const cells=()=>{let k=0;return[...W()].map(c=>{if(c==' ')return'<span class="cell sp"></span>';const v=st.sw>0||st.ord.indexOf(k)<st.rev;k++;return`<span class="cell ${v?'on':''}"><span class="in"><span class="fr"></span><span class="bk">${esc(c)}</span></span></span>`}).join('')};
   play('du',()=>({sc:[0,0],stp:1,l:[o.s*1000,o.s*1000],a:0,i:0,rev:0,rt:0,sw:0,ord:mo(LN(0)),msg:'Inizia '+S.n[0]}),
-  ()=>{const s=st,tc=i=>`<div class="tc t${i} ${s.a==i?'act':''}" id="tc${i}"><b id="lb${i}">${esc(S.n[i])}${s.a==i?' · IN GIOCO':''}</b><div class="clock" id="d${i}">${sec(s.l[i])}</div></div>`;
+  ()=>{const s=st,tc=i=>`<div class="tc t${i} ${s.a==i?'act':''}" id="tc${i}"><b id="lb${i}">${esc(S.n[i])}${s.a==i?' · IN GIOCO':''}</b><div class="clock" id="d${i}">${fmc(s.l[i])}</div></div>`;
    return`<section class="duel">${tc(0)}<div class="mid"><small>Definizione</small><h2 class="q">${esc(Q[s.i%Q.length][0])}</h2><div class="cells" id="wd" style="--n:${[...W()].length}">${cells()}</div><p class="msg" id="mg">${s.p?'IN PAUSA':esc(s.msg)}</p><button class="b big" id="psb" data-a="ps" ${s.sw>0?'disabled':''}>PASSA ALL'ALTRA SQUADRA</button></div>${tc(1)}${pnl()}</section>`},
   (sv,d)=>({ps:()=>{if(st.sw>0||st.done)return;sv();snd('sw');st.a=1-st.a;st.msg='Cambio turno: tocca a '+S.n[st.a];
    const cs=[...document.querySelectorAll('#wd .cell:not(.sp)')];let m=0;cs.forEach(c=>{if(!c.classList.contains('on')){c.style.setProperty('--d',m++*90+'ms');c.classList.add('on')}});
    st.sw=Math.max(1500,m*90+1100);bn('TOCCA A '+S.n[st.a].toUpperCase());
    [0,1].forEach(i=>{const t=$('#tc'+i),l=$('#lb'+i);if(t)t.classList.toggle('act',st.a==i);if(l)l.textContent=S.n[i]+(st.a==i?' · IN GIOCO':'')});const g=$('#mg');if(g)g.textContent=st.msg;const p=$('#psb');if(p)p.disabled=true}}),
   ms=>{if(st.sw>0){st.sw-=ms;if(st.sw<=0){st.sw=0;st.i++;st.rev=0;st.rt=0;st.ord=mo(LN(st.i));st.msg='Tocca a '+S.n[st.a];R()}return}
-   const a=st.a,b=st.l[a];st.l[a]-=ms;tick10(b,st.l[a]);const e=$('#d'+a);if(e){e.textContent=sec(st.l[a]);e.classList.toggle('low',sec(st.l[a])<=10)}
+   const a=st.a,b=st.l[a];st.l[a]-=ms;tick10(b,st.l[a]);const e=$('#d'+a);if(e){e.textContent=fmc(st.l[a]);e.classList.toggle('low',st.l[a]<=10000)}
    if(st.l[a]<=0){st.l[a]=0;snd('end');st.ex=[0,1].map(i=>'Tempo rimasto: '+sec(st.l[i])+' s');st.sc[1-a]+=1;st.note='TEMPO SCADUTO per '+esc(S.n[a])+'!';return fin('IL DUELLO')}
-   st.rt+=ms;const tg=Math.min(N()-1,Math.floor(st.rt/2000));while(st.rev<tg){st.rev++;const c=document.querySelectorAll('#wd .cell:not(.sp)')[st.ord[st.rev-1]];if(c)c.classList.add('on','fresh');snd('tick')}})}};
+   st.rt+=ms;const tg=Math.min(N()-1,Math.floor(st.rt/2000));while(st.rev<tg){st.rev++;const c=document.querySelectorAll('#wd .cell:not(.sp)')[st.ord[st.rev-1]];if(c)c.classList.add('on','fresh');snd('tick')}},10)}};
 /* INTESA VINCENTE */
 GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'I compagni suggeriscono una parola alla volta: chi indovina vince punti.',r:'Scegli la squadra. I suggeritori guardano lo schermo, chi indovina si gira. In 60 secondi dite una parola alla volta per far indovinare la parola segreta. Quando pensate di aver indovinato, il conduttore preme INDOVINA: il tempo si ferma. Risposta corretta +1, sbagliata −1, poi parola nuova e il tempo riparte. Poi gioca l’altra squadra.',
  o:()=>tsel()+`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
@@ -157,7 +158,7 @@ const clip=(sg,from,to)=>{const my=++agen,ok=()=>my==agen,url=enc(sg.audio);
  au.onerror=fail;
  if(au.dataset.u!=url){au.dataset.u=url;au.src=url;au.load()}
  if(au.readyState>=1)go();else au.addEventListener('loadedmetadata',go,{once:true})};
-GM.gs={n:'GUESS THE SONG',s:'QUIZ MUSICALE',i:'🎵',d:'Ascolta pochi secondi e indovina titolo e artista.',r:'Ogni squadra ha il suo turno. Premi ASCOLTA 3 SECONDI: da lì parte il tempo, che non si azzera tra una canzone e l’altra. INDIZIO +5 SEC allunga l’ascolto. RISPOSTA CORRETTA dà +1 e mostra la soluzione; PASSO (2 a squadra) mostra la soluzione senza punti. Il tempo resta fermo durante la soluzione e riparte con PROSSIMA CANZONE.',
+GM.gs={n:'GUESS THE SONG',s:'QUIZ MUSICALE',i:'🎵',d:'Ascolta pochi secondi e indovina titolo e artista.',r:'Ogni squadra ha il suo turno. Premi ASCOLTA 3 SECONDI: da lì parte il tempo, che non si azzera tra una canzone e l’altra. INDIZIO +5 SEC allunga l’ascolto. RISPOSTA CORRETTA dà +1 e mostra la soluzione; PASSO (2 a squadra) mostra la soluzione senza punti. Il tempo resta fermo durante la soluzione e riparte solo quando premi ASCOLTA 3 SECONDI sulla canzone successiva.',
  o:()=>{loadCat().then(()=>{const e=$('#cat');if(e)e.textContent=catMsg()});return`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label><p class="sub" id="cat">${catMsg()}</p>`},
  rd:()=>{OP.gs={s:Math.max(10,nv('o_s')||60)}},
  go:()=>{if(!CAT||!CAT.length){alert(catMsg());return}const o=OP.gs;
@@ -171,17 +172,17 @@ GM.gs={n:'GUESS THE SONG',s:'QUIZ MUSICALE',i:'🎵',d:'Ascolta pochi secondi e 
    if(s.ph=='tr')return`<section class="c game t${t}"><h2>TEMPO SCADUTO!</h2><p>${tn(t)}</p><p class="prog">${s.sc[t]} punti</p><p>Corrette: <b>${s.ok[t]}</b> · Passi usati: <b>${s.ps[t]}</b></p><button class="b big" data-a="tt">TURNO DI ${esc(S.n[1-t]).toUpperCase()}</button></section>`;
    if(s.ph=='cat')return`<section class="c game t${t}"><h2>CANZONI FINITE!</h2><p class="sub">Hai usato tutte le ${CAT.length} canzoni.</p><div class="row"><button class="b" data-a="rc">RICOMINCIA IL CATALOGO</button><button class="b s" data-a="te">TERMINA PARTITA</button></div>${pnl('',1)}</section>`;
    const g=SG(s.song),sol=s.ph=='sol';
-   return`<section class="c game t${t}"><p>${tn(t)} · Punti <b id="pt">${s.sc[t]}</b> · <small>${sol?'SOLUZIONE':s.pos?'ASCOLTA E RISPONDI':'PREMI ASCOLTA'}</small></p><div class="clock" id="tm">${sec(s.left)}</div><div class="cvw"><div class="cv ${sol&&s.rv?'on':''}" id="cv"><div class="cin"><div class="cf0"><span>?</span></div><div class="cb0">${sol?`<img src="${enc(g.cover)}" alt="" onerror="this.remove()">`:''}</div></div></div></div><div class="sol">${sol?`<b>${esc(g.title)}</b><span>${esc(g.artist)}</span>`:''}</div><p class="msg" id="gm">${s.err?'Audio non disponibile per questa traccia.':s.p?'IN PAUSA':!s.started&&!sol?'Il tempo parte al primo ASCOLTA':''}</p>`+
+   return`<section class="c game t${t}"><p>${tn(t)} · Punti <b id="pt">${s.sc[t]}</b> · <small>${sol?'SOLUZIONE':s.pos?'ASCOLTA E RISPONDI':'PREMI ASCOLTA'}</small></p><div class="clock" id="tm">${sec(s.left)}</div><div class="cvw"><div class="cv ${sol&&s.rv?'on':''}" id="cv"><div class="cin"><div class="cf0"><span>?</span></div><div class="cb0">${sol?`<img src="${enc(g.cover)}" alt="" onerror="this.remove()">`:''}</div></div></div></div><div class="sol">${sol?`<b>${esc(g.title)}</b><span>${esc(g.artist)}</span>`:''}</div><p class="msg" id="gm">${s.err?'Audio non disponibile per questa traccia.':s.p?'IN PAUSA':!s.started&&!sol?'Timer fermo: parte con ASCOLTA 3 SECONDI':''}</p>`+
    (sol?'<button class="b big" data-a="nx">PROSSIMA CANZONE</button>':`<div class="row"><button class="b" data-a="pl">ASCOLTA 3 SECONDI</button><button class="b s" data-a="hn" ${s.pos?'':'disabled'}>INDIZIO +5 SEC</button></div><div class="row"><button class="b big" data-a="cr" ${s.pos?'':'disabled'}>RISPOSTA CORRETTA</button><button class="b s big" data-a="ps" ${s.ps[t]>=2?'disabled':''}>PASSO</button></div><p class="msg">PASSI DISPONIBILI: ${2-s.ps[t]}/2</p>${s.err?'<button class="b s" data-a="sk">SALTA TRACCIA</button>':''}`)+pnl('',1)+'</section>'},
   (sv,d)=>({sr:()=>{if(st.ph!='ready')return;sr();d()},
    pl:()=>{if(st.ph!='run'||st.p)return;st.err=false;st.started=true;st.pos=Math.max(st.pos,3);clip(SG(st.song),0,3);d()},
    hn:()=>{if(st.ph!='run'||st.p||!st.pos)return;const f=st.pos;st.pos+=5;clip(SG(st.song),f,f+5);d()},
    cr:()=>{if(st.ph!='run'||st.p||!st.pos)return;astop();st.sc[st.tm]++;st.ok[st.tm]++;snd('ok');pts('+1');rev();d()},
    ps:()=>{if(st.ph!='run'||st.p||st.ps[st.tm]>=2)return;astop();st.ps[st.tm]++;snd('sw');rev();d()},
-   nx:()=>{if(st.ph!='sol')return;astop();if(pick()){st.ph='run';snd('sw')}d()},
-   sk:()=>{if(st.ph!='run'||!st.err)return;astop();if(pick())st.ph='run';d()},
+   nx:()=>{if(st.ph!='sol')return;astop();st.started=false;if(pick()){st.ph='run';snd('sw')}d()},
+   sk:()=>{if(st.ph!='run'||!st.err)return;astop();st.started=false;if(pick())st.ph='run';d()},
    tt:()=>{if(st.ph!='tr')return;st.tm=1;sr();d()},
-   rc:()=>{if(st.ph!='cat')return;st.used=[];if(pick())st.ph='run';d()},
+   rc:()=>{if(st.ph!='cat')return;st.started=false;st.used=[];if(pick())st.ph='run';d()},
    te:()=>{if(st.ph!='cat')return;fn()},
    pz:()=>{astop();st.p=true;d()}}),
   ms=>{if(st.ph!='run'||!st.started)return;const b=st.left;st.left-=ms;tick10(b,st.left);const e=$('#tm');if(e)e.textContent=sec(st.left);if(st.left<=0){st.left=0;astop();snd('end');if(st.tm==0){st.ph='tr';R()}else fn()}})}};
