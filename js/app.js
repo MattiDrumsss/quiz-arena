@@ -11,13 +11,14 @@ let st=null,acts={},tk=null,gen=0,lt=0,hist=[],ac,OP={},R=()=>{};
 let au=null,agen=0;const astop=()=>{agen++;if(au)au.pause()};
 const stop=()=>{astop();clearInterval(tk);tk=null;gen++};
 const run=f=>{let l=Date.now();tk=setInterval(()=>{const n=Date.now(),d=n-l;l=n;if(st&&!st.p&&!st.done)f(d)},100)};
+const ask=(m,f)=>{const o=document.createElement('div');o.className='mdl';o.innerHTML=`<div class="mbx"><p>${esc(m)}</p><div class="row"><button class="b" data-m="1">CONFERMA</button><button class="b s" data-m="0">ANNULLA</button></div></div>`;o.addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;o.remove();if(b.dataset.m=='1')f()});document.body.appendChild(o)};
 const pts=(t,k)=>{const e=document.createElement('div');e.className='pts '+(k||'');e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),950)};
 const bn=t=>{const e=document.createElement('div');e.className='bn';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1300)};
 const fx=k=>{const e=document.createElement('div');e.className='flash '+k;document.body.appendChild(e);setTimeout(()=>e.remove(),700)};
 const conf=()=>{for(let i=0;i<70;i++){const e=document.createElement('i');e.className='cf';e.style.cssText=`left:${Math.random()*100}vw;background:${R0(['#ffe08a','#b8860b','#f5c542','#27f59a','#ffd23f'])};animation-delay:${Math.random()*.8}s;--x:${Math.random()*200-100}px`;document.body.appendChild(e);setTimeout(()=>e.remove(),3800)}};
 function snd(t){if(t=='ok'||t=='ko')fx(t);if(!S.snd)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const f={ok:[660,880],ko:[220,150],tick:[900],end:[300,200,120],win:[523,659,784,1047],sw:[500,650]}[t];f.forEach((h,i)=>{const o=ac.createOscillator(),g=ac.createGain(),s=ac.currentTime+i*.12;o.frequency.value=h;o.type=t=='ko'||t=='end'?'sawtooth':'sine';o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.15,s);g.gain.exponentialRampToValueAtTime(.001,s+.2);o.start(s);o.stop(s+.22)})}catch(e){}}
 const tick10=(b,n)=>{if(sec(b)!=sec(n)&&sec(n)<=10&&sec(n)>0)snd('tick')};
-const scr=h=>{A.innerHTML=h;A.classList.remove('ani');void A.offsetWidth;A.classList.add('ani');window.scrollTo(0,0)};
+const scr=h=>{document.body.classList.remove('is-home');A.innerHTML=h;A.classList.remove('ani');void A.offsetWidth;A.classList.add('ani');window.scrollTo(0,0)};
 A.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target&&e.target.id=='ai'&&acts.cf)acts.cf()});
 A.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const a=b.dataset.a,n=Date.now();if(st&&st.done&&!['ag','ot','hm'].includes(a))return;if(a!='adj'&&n-lt<300)return;lt=n;if(acts[a])acts[a](b.dataset.v)});
 const logo=`<svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#b8860b"/></linearGradient></defs><polygon points="60,6 108,33 108,87 60,114 12,87 12,33" fill="#0d0b06" stroke="url(#lg)" stroke-width="5"/><text x="60" y="80" text-anchor="middle" font-size="58" font-weight="900" fill="url(#lg)" font-family="Arial Black,Impact,sans-serif">Q</text></svg>`;
@@ -27,28 +28,28 @@ const pnl=(x,nu)=>`<details class="mnu"><summary class="b g">⋯ MENU</summary><
 const sb=()=>`<div class="sb">${[0,1].map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong id="sc${i}">${st.sc[i]}</strong><span><button data-a="adj" data-v="${i},-1" aria-label="Meno">−</button><button data-a="adj" data-v="${i},1" aria-label="Più">+</button></span></div>`).join('')}</div>`;
 function play(id,init,view,a,tf){
   stop();st=init();hist=[];
-  const draw=()=>{const e=$('#ai');if(e&&st&&st.ans!==undefined)st.ans=e.value;A.innerHTML=`<div class="gtl">${GM[id].n}</div>`+view()};
+  const draw=()=>{const e=$('#ai');if(e&&st&&st.ans!==undefined)st.ans=e.value;A.innerHTML=`<div class="gtl">${GM[id].n}</div>`+view()+(st&&st.p&&!st.done?'<div class="pov"><h2>IN PAUSA</h2><button class="b big" data-a="rp">RIPRENDI</button><button class="b g" data-a="rs">RIAVVIA</button><button class="b g" data-a="mn">ESCI AL MENU</button></div>':'')};
   R=draw;
   const sv=()=>{hist.push(JSON.stringify(st));if(hist.length>60)hist.shift()};
   acts=Object.assign({
     adj:v=>{const[i,d]=v.split(',');st.sc[i]=Math.max(0,st.sc[i]+d*st.stp);draw()},
     pz:()=>{st.p=true;draw()},rp:()=>{st.p=false;draw()},
     un:()=>{if(hist.length){st=JSON.parse(hist.pop());draw()}},
-    rs:()=>{if(confirm('Riavviare la partita? I progressi andranno persi.'))GM[id].go()},
-    mn:()=>{if(confirm('Tornare al menu? I progressi andranno persi.'))menu()},
+    rs:()=>ask('Riavviare la partita? I progressi andranno persi.',()=>GM[id].go()),
+    mn:()=>ask('Tornare al menu? I progressi andranno persi.',menu),
     hm:home,ot:menu,ag:()=>GM[id].go()
   },a(sv,draw));
   draw();run(tf);
 }
 function fin(t){
   stop();st.done=true;snd(st.solo&&!st.won?'ko':'win');const[a,b]=st.sc,w=st.solo?(st.won?(st.wt||'HAI VINTO!'):'HAI PERSO'):a==b?'PAREGGIO':'VINCE '+esc(S.n[a>b?0:1]).toUpperCase();
-  scr(`<section class="c fin"><h2>${t}</h2><div class="win">${w}</div><div class="res">${(st.solo?[st.tm]:[0,1]).map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong>${st.sc[i]}</strong>${st.ex?`<small>${st.ex[i]}</small>`:''}</div>`).join('')}</div>${st.note?`<p class="sub">${st.note}</p>`:''}<button class="b" data-a="ag">RIGIOCA</button><button class="b s" data-a="ot">SCEGLI UN ALTRO GIOCO</button><button class="b s" data-a="hm">TORNA ALLA HOME</button></section>`);if(!st.solo||st.won)conf();
+  scr(`<section class="c fin"><h2>${t}</h2><div class="win">${w}</div><div class="res">${(st.solo?[st.tm]:[0,1]).map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong>${st.sc[i]}</strong>${st.ex?`<small>${st.ex[i]}</small>`:''}</div>`).join('')}</div>${st.note?`<p class="sub note">${st.note}</p>`:''}<button class="b" data-a="ag">${st.nl||'RIGIOCA'}</button><button class="b s" data-a="ot">SCEGLI UN ALTRO GIOCO</button><button class="b s" data-a="hm">TORNA ALLA HOME</button></section>`);if(!st.solo||st.won)conf();
 }
 const cust=k=>LS.g('cu_'+k,[]);
 const ID=['gh','fi','du','iv','da','gs'];
 const GM={};
 function home(){stop();st=null;acts={go:teams,rl:rules,sd:()=>{S.snd=!S.snd;LS.s('snd',S.snd);home()}};
-  scr(`<section class="c hero">${logo}<h1>QUIZ ARENA</h1><p class="sub">I giochi dei quiz TV da giocare con gli amici: due squadre, un organizzatore, nessuna registrazione.</p><button class="b" data-a="go">INIZIA A GIOCARE</button><button class="b s" data-a="rl">REGOLE DEI GIOCHI</button><button class="b s" data-a="sd">EFFETTI SONORI: ${S.snd?'ATTIVI':'SPENTI'}</button></section>`)}
+  scr(`<section class="c hero"><img class="logo" src="assets/logo.png" alt="QUIZ ARENA" width="900" height="900" decoding="async"><h1 class="sr">QUIZ ARENA</h1><div class="tag">Il game show da giocare con gli amici</div><p class="sub">I giochi dei quiz TV in una sola arena: due squadre, un conduttore, nessuna registrazione.</p><button class="b" data-a="go">INIZIA A GIOCARE</button><button class="b s" data-a="rl">REGOLE DEI GIOCHI</button><button class="b s" data-a="sd">EFFETTI SONORI: ${S.snd?'ATTIVI':'SPENTI'}</button></section>`);document.body.classList.add('is-home')}
 function rules(){acts={hm:home};scr(`<section class="c"><h2>REGOLE DEI GIOCHI</h2><div class="grid">${ID.map(i=>`<div class="cd"><div class="ic">${GM[i].i}</div><h2>${GM[i].n}</h2><p>${GM[i].r}</p></div>`).join('')}</div><button class="b" data-a="hm">TORNA ALLA HOME</button></section>`)}
 function teams(){acts={hm:home,ok:()=>{S.n=[0,1].map(i=>$('#n'+i).value.trim()||'Squadra '+(i+1));LS.s('n',S.n);menu()}};
   scr(`<section class="c"><h2>CHI GIOCA?</h2><div class="grid">${[0,1].map(i=>`<div class="cd tcard t${i}"><div class="ic">${i?'🔥':'⚡'}</div><h2>SQUADRA ${i+1}</h2><input class="fld" id="n${i}" maxlength="24" placeholder="Squadra ${i+1}" value="${S.n[i]=='Squadra '+(i+1)?'':esc(S.n[i])}" autocomplete="off"></div>`).join('')}</div><button class="b" data-a="ok">CONFERMA</button><button class="b s" data-a="hm">INDIETRO</button></section>`)}
@@ -77,19 +78,21 @@ GM.gh={n:'LA GHIGLIOTTINA',s:"L'EREDITÀ",i:'🪓',d:'Scegli le parole giuste, p
   ms=>{if(st.ph!=2)return;const b=st.left;st.left-=ms;tick10(b,st.left);const e=$('#tm');if(e)e.textContent=fm(st.left);if(st.left<=0){st.left=0;snd('end');st.won=false;st.note='Tempo scaduto! Soluzione: '+esc(st.sol);fin('LA GHIGLIOTTINA')}})}};
 
 /* AVANTI UN ALTRO */
-GM.fi={n:'IL GIOCO FINALE',s:'AVANTI UN ALTRO!',i:'🎯',d:'21 risposte sbagliate di fila: tocca quella sbagliata!',r:'Ogni domanda ha due risposte. Devi toccare quella SBAGLIATA, 21 volte di fila. Se tocchi quella giusta, la serie riparte da zero.',
+let FS=[];
+GM.fi={n:'IL GIOCO FINALE',s:'AVANTI UN ALTRO!',i:'🎯',d:'21 risposte sbagliate di fila: tocca quella sbagliata!',r:'Ogni domanda ha due risposte. Devi toccare quella SBAGLIATA, 21 volte di fila. Se tocchi quella giusta, si riparte dalla prima domanda: le domande del round restano sempre le stesse, nello stesso ordine. A ogni nuovo round cambiano.',
  o:()=>tsel()+`<label>Modalità<select id="o_md"><option value="0">Classica: 150 secondi</option><option value="1">Montepremi: 100.000 punti, −1.000 al secondo</option></select></label>`,
  rd:()=>{OP.fi={tm:nv('o_tm'),md:nv('o_md')}},
- go:()=>{const o=OP.fi,Q=sh(D.fi.concat(cust('fi')).map(l=>l.split('|')));
-  play('fi',()=>({sc:[0,0],stp:100,tm:o.tm,md:o.md,i:0,cnt:0,left:150000,jp:100000,f:Math.random()<.5,fb:null,solo:1,won:false}),
-  ()=>{const s=st,[q,c,w]=Q[s.i%Q.length],op=s.f?[w,c]:[c,w];
-   return`<section class="c game"><p>${tn(s.tm)} · ${s.md?'MONTEPREMI':'CLASSICA'}</p><div class="prog">${s.cnt}/21</div><div class="clock" id="tm">${s.md?sec(s.jp):fm(s.left)}</div>${s.md?`<div class="jp">MONTEPREMI<strong id="jp">${s.jp.toLocaleString('it-IT')}</strong></div>`:''}<h2 class="q">${esc(q)}</h2><div class="pair">${op.map((x,k)=>`<button class="b w big" data-a="an" data-v="${k}">${esc(x)}</button>`).join('')}</div><p class="msg ${s.fb?s.fb[0]:''}">${s.fb?s.fb[1]:'Tocca la risposta SBAGLIATA'}</p>${pnl()}</section>`},
-  (sv,d)=>({an:v=>{if(st.done)return;sv();const ok=+v==(st.f?1:0);st.f=Math.random()<.5;st.i++;
-    if(!ok){st.cnt++;snd('ok');st.fb=['good','Sbagliata! Ottimo!'];if(st.cnt>=21){st.sc[st.tm]+=st.md?st.jp:sec(st.left)*10;st.note='21 su 21!';st.won=true;return fin('AVANTI UN ALTRO!')}}
-    else{st.cnt=0;snd('ko');st.fb=['bad','Era quella giusta: si riparte da 0'];if(st.md)st.jp=Math.max(0,st.jp-5000)}
+ go:()=>{const o=OP.fi,P=D.fi.concat(cust('fi')).map(l=>l.split('|')).filter(x=>x[2]),L=Math.min(21,P.length);
+  const mkSeq=()=>{let s,k;for(let n=0;n<40;n++){s=sh(P).slice(0,L);k=s.map(x=>x[0]).join('|');if(!FS.includes(k))break}FS.push(k);if(FS.length>2)FS.shift();return s};
+  play('fi',()=>{const seq=mkSeq();return{sc:[0,0],stp:100,tm:o.tm,md:o.md,seq,fl:seq.map(()=>Math.random()<.5),qi:0,left:150000,jp:100000,fb:null,solo:1,won:false,nl:'TURNO DI '+S.n[1-o.tm].toUpperCase()}},
+  ()=>{const s=st,[q,c,w]=s.seq[s.qi],op=s.fl[s.qi]?[w,c]:[c,w];
+   return`<section class="c game"><p>${tn(s.tm)} · ${s.md?'MONTEPREMI':'CLASSICA'}</p><div class="prog">${s.qi}/${s.seq.length}</div><div class="pips">${s.seq.map((_,k)=>`<i class="${k<s.qi?'f':''}"></i>`).join('')}</div><div class="clock" id="tm">${s.md?sec(s.jp):fm(s.left)}</div>${s.md?`<div class="jp">MONTEPREMI<strong id="jp">${s.jp.toLocaleString('it-IT')}</strong></div>`:''}<h2 class="q">${esc(q)}</h2><div class="pair">${op.map((x,k)=>`<button class="b w big" data-a="an" data-v="${k}">${esc(x)}</button>`).join('')}</div><p class="msg ${s.fb?s.fb[0]:''}">${s.fb?s.fb[1]:'Tocca la risposta SBAGLIATA'}</p>${pnl()}</section>`},
+  (sv,d)=>({ag:()=>{OP.fi.tm=1-OP.fi.tm;GM.fi.go()},an:v=>{if(st.done)return;sv();const ok=+v==(st.fl[st.qi]?1:0);
+    if(!ok){st.qi++;snd('ok');st.fb=['good','Sbagliata! Ottimo!'];if(st.qi>=st.seq.length){st.sc[st.tm]+=st.md?st.jp:sec(st.left)*10;st.note=st.seq.length+' su '+st.seq.length+'!';st.won=true;return fin('AVANTI UN ALTRO!')}}
+    else{st.qi=0;snd('ko');st.fb=['bad','Era quella giusta: si riparte dalla prima domanda'];if(st.md)st.jp=Math.max(0,st.jp-5000)}
     d()}}),
   ms=>{const b=st.md?st.jp:st.left;if(st.md)st.jp-=ms;else st.left-=ms;const n=st.md?st.jp:st.left;tick10(b,n);const e=$('#tm');if(e)e.textContent=st.md?sec(st.jp):fm(st.left);const j=$('#jp');if(j)j.textContent=Math.max(0,Math.ceil(st.jp/1000)*1000).toLocaleString('it-IT');
-   if(n<=0){snd('end');st.note='Tempo scaduto: serie raggiunta '+st.cnt+'/21';fin('AVANTI UN ALTRO!')}})}};
+   if(n<=0){snd('end');st.note='Tempo scaduto: serie raggiunta '+st.qi+'/'+st.seq.length;fin('AVANTI UN ALTRO!')}})}};
 /* IL DUELLO */
 GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: indovina la parola prima che il tempo finisca.',r:'Una definizione e una parola con le lettere nascoste: una nuova lettera appare ogni 2 secondi, l’ultima resta nascosta. La squadra risponde a voce; il conduttore preme «PASSA ALL’ALTRA SQUADRA». Il timer della squadra attiva scorre, l’altro aspetta. Chi finisce il tempo perde.',
  o:()=>`<label>Secondi per squadra<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
