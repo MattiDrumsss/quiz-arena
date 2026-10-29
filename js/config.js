@@ -2,9 +2,9 @@
    Questi valori NON sono segreti: la sicurezza è nelle regole del database.
    Finché restano "INSERISCI...", QUIZ ARENA funziona in modalità locale su un solo dispositivo. */
 window.QA_FIREBASE={
-  apiKey:"INSERISCI_API_KEY",
-  authDomain:"INSERISCI_PROGETTO.firebaseapp.com",
-  databaseURL:"INSERISCI_URL_DATABASE",
-  projectId:"INSERISCI_PROJECT_ID",
-  appId:"INSERISCI_APP_ID"
+  apiKey:"AIzaSyDxyREhqVEdy1pa154FCGeAFoSaBFCtqe8",
+  authDomain:"quiz-arena-e66ba.firebaseapp.com",
+  databaseURL:"https://console.firebase.google.com/project/quiz-arena-e66ba/database/quiz-arena-e66ba-default-rtdb/data/~2F",
+  projectId:"quiz-arena-e66ba",
+  appId:"1:61177614640:web:a40f12b35fe5db688a38f5"
 };
