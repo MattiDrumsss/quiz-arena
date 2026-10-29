@@ -4,7 +4,7 @@
 window.QA_FIREBASE={
   apiKey:"AIzaSyDxyREhqVEdy1pa154FCGeAFoSaBFCtqe8",
   authDomain:"quiz-arena-e66ba.firebaseapp.com",
-  databaseURL:"https://console.firebase.google.com/project/quiz-arena-e66ba/database/quiz-arena-e66ba-default-rtdb/data/~2F",
+  databaseURL:"https://quiz-arena-e66ba-default-rtdb.europe-west1.firebasedatabase.app",
   projectId:"quiz-arena-e66ba",
   appId:"1:61177614640:web:a40f12b35fe5db688a38f5"
 };
