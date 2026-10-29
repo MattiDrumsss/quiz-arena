@@ -1,4 +1,5 @@
 (()=>{
+const RM=window.RM||{mode:'local',ok:false,pub(){},cmd(){}};
 const $=s=>document.querySelector(s),A=$('#app'),R0=a=>a[Math.random()*a.length|0];
 const sh=a=>{a=a.slice();for(let i=a.length;i>1;){const j=Math.random()*i--|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const LS={g:(k,d)=>{try{const v=localStorage.getItem('qa_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},s:(k,v)=>{try{localStorage.setItem('qa_'+k,JSON.stringify(v))}catch(e){}}};
@@ -9,7 +10,7 @@ const fmc=ms=>{const c=Math.max(0,Math.ceil(ms/10));return String(Math.floor(c/1
 const sec=ms=>Math.max(0,Math.ceil(ms/1000)),fm=ms=>{const s=sec(ms);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 const tn=i=>`<span class="tg t${i}">${esc(S.n[i])}</span>`;
 let st=null,acts={},tk=null,gen=0,lt=0,hist=[],ac,OP={},R=()=>{};
-let au=null,agen=0;const astop=()=>{agen++;if(au)au.pause()};
+let au=null,agen=0,gid=null;const astop=()=>{agen++;if(RM.mode=='regia')RM.cmd({s:1});if(au)au.pause()};
 const stop=()=>{astop();clearInterval(tk);tk=null;gen++};
 const run=(f,iv)=>{let l=Date.now();tk=setInterval(()=>{const n=Date.now(),d=n-l;l=n;if(st&&!st.p&&!st.done)f(d)},iv||100)};
 const ask=(m,f)=>{const o=document.createElement('div');o.className='mdl';o.innerHTML=`<div class="mbx"><p>${esc(m)}</p><div class="row"><button class="b" data-m="1">CONFERMA</button><button class="b s" data-m="0">ANNULLA</button></div></div>`;o.addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;o.remove();if(b.dataset.m=='1')f()});document.body.appendChild(o)};
@@ -28,8 +29,8 @@ const nv=id=>+($('#'+id)?.value);
 const pnl=(x,nu)=>`<details class="mnu"><summary class="b g">⋯ MENU</summary><div class="pnl">${x||''}<button class="b s" data-a="pz" ${st.p?'disabled':''}>PAUSA</button><button class="b s" data-a="rp" ${st.p?'':'disabled'}>RIPRENDI</button>${nu?'':'<button class="b s" data-a="un">ANNULLA ULTIMA AZIONE</button>'}<button class="b g" data-a="rs">RIAVVIA</button><button class="b g" data-a="mn">ESCI AL MENU</button></div></details>`;
 const sb=()=>`<div class="sb">${[0,1].map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong id="sc${i}">${st.sc[i]}</strong><span><button data-a="adj" data-v="${i},-1" aria-label="Meno">−</button><button data-a="adj" data-v="${i},1" aria-label="Più">+</button></span></div>`).join('')}</div>`;
 function play(id,init,view,a,tf,iv){
-  stop();st=init();hist=[];
-  const draw=()=>{const e=$('#ai');if(e&&st&&st.ans!==undefined)st.ans=e.value;A.innerHTML=`<div class="gtl">${GM[id].n}</div>`+view()+(st&&st.p&&!st.done?'<div class="pov"><h2>IN PAUSA</h2><button class="b big" data-a="rp">RIPRENDI</button><button class="b g" data-a="rs">RIAVVIA</button><button class="b g" data-a="mn">ESCI AL MENU</button></div>':'')};
+  stop();st=init();hist=[];gid=id;
+  const draw=()=>{const e=$('#ai');if(e&&st&&st.ans!==undefined)st.ans=e.value;A.innerHTML=`<div class="gtl">${GM[id].n}</div>`+view()+(st&&st.p&&!st.done?'<div class="pov"><h2>IN PAUSA</h2><button class="b big" data-a="rp">RIPRENDI</button><button class="b g" data-a="rs">RIAVVIA</button><button class="b g" data-a="mn">ESCI AL MENU</button></div>':'');pubG('game')};
   R=draw;
   const sv=()=>{hist.push(JSON.stringify(st));if(hist.length>60)hist.shift()};
   acts=Object.assign({
@@ -44,21 +45,21 @@ function play(id,init,view,a,tf,iv){
 }
 function fin(t){
   stop();st.done=true;snd(st.solo&&!st.won?'ko':'win');const[a,b]=st.sc,w=st.solo?(st.won?(st.wt||'HAI VINTO!'):'HAI PERSO'):a==b?'PAREGGIO':'VINCE '+esc(S.n[a>b?0:1]).toUpperCase();
-  scr(`<section class="c fin"><h2>${t}</h2><div class="win">${w}</div><div class="res">${(st.solo?[st.tm]:[0,1]).map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong>${st.sc[i]}</strong>${st.ex?`<small>${st.ex[i]}</small>`:''}</div>`).join('')}</div>${st.note?`<p class="sub note">${st.note}</p>`:''}<button class="b" data-a="ag">${st.nl||'RIGIOCA'}</button><button class="b s" data-a="ot">SCEGLI UN ALTRO GIOCO</button><button class="b s" data-a="hm">TORNA ALLA HOME</button></section>`);if(!st.solo||st.won)conf();
+  scr(`<section class="c fin"><h2>${t}</h2><div class="win">${w}</div><div class="res">${(st.solo?[st.tm]:[0,1]).map(i=>`<div class="tm t${i}"><b>${esc(S.n[i])}</b><strong>${st.sc[i]}</strong>${st.ex?`<small>${st.ex[i]}</small>`:''}</div>`).join('')}</div>${st.note?`<p class="sub note">${st.note}</p>`:''}<button class="b" data-a="ag">${st.nl||'RIGIOCA'}</button><button class="b s" data-a="ot">SCEGLI UN ALTRO GIOCO</button><button class="b s" data-a="hm">TORNA ALLA HOME</button></section>`);if(!st.solo||st.won)conf();pubG('fin');
 }
 const cust=k=>LS.g('cu_'+k,[]);
 const ID=['gh','fi','du','iv','da','gs'];
 const GM={};
-function home(){stop();st=null;acts={go:teams,rl:rules,sd:()=>{S.snd=!S.snd;LS.s('snd',S.snd);home()}};
-  scr(`<section class="c hero"><img class="logo" src="assets/logo.png" alt="QUIZ ARENA" width="900" height="900" decoding="async"><h1 class="sr">QUIZ ARENA</h1><div class="tag">Il game show da giocare con gli amici</div><p class="sub">I giochi dei quiz TV in una sola arena: due squadre, un conduttore, nessuna registrazione.</p><button class="b" data-a="go">INIZIA A GIOCARE</button><button class="b s" data-a="rl">REGOLE DEI GIOCHI</button><button class="b s" data-a="sd">EFFETTI SONORI: ${S.snd?'ATTIVI':'SPENTI'}</button></section>`);document.body.classList.add('is-home')}
+function home(){stop();st=null;acts={go:teams,rl:rules,j2:()=>RM.init().then(()=>joinScr()).catch(er),sd:()=>{S.snd=!S.snd;LS.s('snd',S.snd);home()}};
+  scr(`<section class="c hero"><img class="logo" src="assets/logo.png" alt="QUIZ ARENA" width="900" height="900" decoding="async"><h1 class="sr">QUIZ ARENA</h1><div class="tag">Il game show da giocare con gli amici</div><p class="sub">I giochi dei quiz TV in una sola arena: due squadre, un conduttore, nessuna registrazione.</p><button class="b" data-a="go">INIZIA A GIOCARE</button><button class="b s" data-a="rl">REGOLE DEI GIOCHI</button>${RM.ok?'<button class="b g" data-a="j2">COLLEGA UN SECONDO SCHERMO</button>':''}<button class="b s" data-a="sd">EFFETTI SONORI: ${S.snd?'ATTIVI':'SPENTI'}</button></section>`);document.body.classList.add('is-home')}
 function rules(){acts={hm:home};scr(`<section class="c"><h2>REGOLE DEI GIOCHI</h2><div class="grid">${ID.map(i=>`<div class="cd"><div class="ic">${GM[i].i}</div><h2>${GM[i].n}</h2><p>${GM[i].r}</p></div>`).join('')}</div><button class="b" data-a="hm">TORNA ALLA HOME</button></section>`)}
-function teams(){acts={hm:home,ok:()=>{S.n=[0,1].map(i=>$('#n'+i).value.trim()||'Squadra '+(i+1));LS.s('n',S.n);menu()}};
+function teams(){acts={hm:home,ok:()=>{S.n=[0,1].map(i=>$('#n'+i).value.trim()||'Squadra '+(i+1));LS.s('n',S.n);roomScreen()}};
   scr(`<section class="c"><h2>CHI GIOCA?</h2><div class="grid">${[0,1].map(i=>`<div class="cd tcard t${i}"><div class="ic">${i?'🔥':'⚡'}</div><h2>SQUADRA ${i+1}</h2><input class="fld" id="n${i}" maxlength="24" placeholder="Squadra ${i+1}" value="${S.n[i]=='Squadra '+(i+1)?'':esc(S.n[i])}" autocomplete="off"></div>`).join('')}</div><button class="b" data-a="ok">CONFERMA</button><button class="b s" data-a="hm">INDIETRO</button></section>`)}
-function menu(){stop();st=null;acts={pr:prep,tm:teams,hm:home};
-  scr(`<section class="c"><h2>SCEGLI UN GIOCO</h2><p class="sub">${tn(0)} contro ${tn(1)}</p><div class="grid">${ID.map(i=>`<div class="cd"><div class="ic">${GM[i].i}</div><h2>${GM[i].n}</h2><small>${GM[i].s}</small><p>${GM[i].d}</p><button class="b" data-a="pr" data-v="${i}">GIOCA</button></div>`).join('')}</div><button class="b s" data-a="tm">CAMBIA SQUADRE</button><button class="b s" data-a="hm">HOME</button></section>`)}
+function menu(){stop();st=null;acts={pr:prep,tm:teams,hm:home,lv:()=>RM.leave().then(home)};if(RM.mode=='regia')RM.pub({k:'wait',n:S.n,m:'La regia sta scegliendo il gioco.'});
+  scr(`<section class="c"><h2>SCEGLI UN GIOCO</h2><p class="sub">${tn(0)} contro ${tn(1)}</p><div class="grid">${ID.map(i=>`<div class="cd"><div class="ic">${GM[i].i}</div><h2>${GM[i].n}</h2><small>${GM[i].s}</small><p>${GM[i].d}</p><button class="b" data-a="pr" data-v="${i}">GIOCA</button></div>`).join('')}</div><button class="b s" data-a="tm">CAMBIA SQUADRE</button>${RM.mode=='regia'?'<button class="b g" data-a="lv">ESCI DALLA STANZA</button>':'<button class="b s" data-a="hm">HOME</button>'}</section>`)}
 const HINT={gh:'5 indizi separati da virgola, poi | e la soluzione. Esempio: ARTIFICIO,FATUO,AMICO,INCROCIATO,SACRO|FUOCO',fi:'domanda|risposta corretta|risposta sbagliata',du:'definizione|PAROLA',iv:'parola|categoria',da:'categoria|domanda|anno|spiegazione'};
 const NEED={gh:2,fi:3,du:2,iv:1,da:4};
-function prep(id){stop();acts={st:()=>{GM[id].rd();GM[id].go()},bk:menu,ac:()=>{const l=prompt(HINT[id]);if(!l)return;if(l.split('|').length<NEED[id]||(id=='gh'&&l.split('|')[0].split(',').length!=5)||(id=='da'&&isNaN(+l.split('|')[2]))){alert('Formato non valido. Usa: '+HINT[id]);return}const c=cust(id);c.push(l.trim());LS.s('cu_'+id,c);alert('Aggiunto!')}};
+function prep(id){stop();if(RM.mode=='regia')RM.pub({k:'prev',n:S.n,gn:GM[id].n,i:GM[id].i,gd:GM[id].d,m:'La regia sta preparando il gioco.'});acts={st:()=>{GM[id].rd();GM[id].go()},bk:menu,ac:()=>{const l=prompt(HINT[id]);if(!l)return;if(l.split('|').length<NEED[id]||(id=='gh'&&l.split('|')[0].split(',').length!=5)||(id=='da'&&isNaN(+l.split('|')[2]))){alert('Formato non valido. Usa: '+HINT[id]);return}const c=cust(id);c.push(l.trim());LS.s('cu_'+id,c);alert('Aggiunto!')}};
   scr(`<section class="c"><div class="ic" style="font-size:3rem">${GM[id].i}</div><h2>${GM[id].n}</h2><p class="sub">${GM[id].r}</p><div class="cd opt">${GM[id].o()}</div><button class="b" data-a="st">INIZIA IL GIOCO</button>${id=='gs'?'':`<button class="b s" data-a="ac">AGGIUNGI ${id=='iv'?'PAROLA':id=='gh'?'PARTITA':'DOMANDA'}</button>`}<button class="b s" data-a="bk">INDIETRO</button></section>`)}
 
 /* LA GHIGLIOTTINA */
@@ -107,11 +108,11 @@ GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: 
   (sv,d)=>({ps:()=>{if(st.sw>0||st.done)return;sv();snd('sw');st.a=1-st.a;st.msg='Cambio turno: tocca a '+S.n[st.a];
    const cs=[...document.querySelectorAll('#wd .cell:not(.sp)')];let m=0;cs.forEach(c=>{if(!c.classList.contains('on')){c.style.setProperty('--d',m++*90+'ms');c.classList.add('on')}});
    st.sw=Math.max(1500,m*90+1100);bn('TOCCA A '+S.n[st.a].toUpperCase());
-   [0,1].forEach(i=>{const t=$('#tc'+i),l=$('#lb'+i);if(t)t.classList.toggle('act',st.a==i);if(l)l.textContent=S.n[i]+(st.a==i?' · IN GIOCO':'')});const g=$('#mg');if(g)g.textContent=st.msg;const p=$('#psb');if(p)p.disabled=true}}),
+   [0,1].forEach(i=>{const t=$('#tc'+i),l=$('#lb'+i);if(t)t.classList.toggle('act',st.a==i);if(l)l.textContent=S.n[i]+(st.a==i?' · IN GIOCO':'')});const g=$('#mg');if(g)g.textContent=st.msg;const p=$('#psb');if(p)p.disabled=true;pubG('game')}}),
   ms=>{if(st.sw>0){st.sw-=ms;if(st.sw<=0){st.sw=0;st.i++;st.rev=0;st.rt=0;st.ord=mo(LN(st.i));st.msg='Tocca a '+S.n[st.a];R()}return}
    const a=st.a,b=st.l[a];st.l[a]-=ms;tick10(b,st.l[a]);const e=$('#d'+a);if(e){e.textContent=fmc(st.l[a]);e.classList.toggle('low',st.l[a]<=10000)}
    if(st.l[a]<=0){st.l[a]=0;snd('end');st.ex=[0,1].map(i=>'Tempo rimasto: '+sec(st.l[i])+' s');st.sc[1-a]+=1;st.note='TEMPO SCADUTO per '+esc(S.n[a])+'!';return fin('IL DUELLO')}
-   st.rt+=ms;const tg=Math.min(N()-1,Math.floor(st.rt/2000));while(st.rev<tg){st.rev++;const c=document.querySelectorAll('#wd .cell:not(.sp)')[st.ord[st.rev-1]];if(c)c.classList.add('on','fresh');snd('tick')}},10)}};
+   st.rt+=ms;const tg=Math.min(N()-1,Math.floor(st.rt/2000));while(st.rev<tg){st.rev++;const c=document.querySelectorAll('#wd .cell:not(.sp)')[st.ord[st.rev-1]];if(c)c.classList.add('on','fresh');snd('tick');pubG('game')}},10)}};
 /* INTESA VINCENTE */
 GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'I compagni suggeriscono una parola alla volta: chi indovina vince punti.',r:'Scegli la squadra. I suggeritori guardano lo schermo, chi indovina si gira. In 60 secondi dite una parola alla volta per far indovinare la parola segreta. Quando pensate di aver indovinato, il conduttore preme INDOVINA: il tempo si ferma. Risposta corretta +1, sbagliata −1, poi parola nuova e il tempo riparte. Poi gioca l’altra squadra.',
  o:()=>tsel()+`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
@@ -149,8 +150,8 @@ const catMsg=()=>CERR?'Impossibile leggere songs/songs.json. Apri il sito pubbli
 const enc=p=>String(p||'').replace(/^\/+/,'').split('/').map(encodeURIComponent).join('/');
 const cvpl=on=>{const e=$('#cv');if(e)e.classList.toggle('pl',on)};
 const SG=id=>CAT.find(s=>s.id==id);
-const clip=(sg,from,to)=>{const my=++agen,ok=()=>my==agen,url=enc(sg.audio);
- const fail=()=>{if(ok()&&st&&st.ph=='run'){st.err=true;R()}};
+const clip=(sg,from,to)=>{if(RM.mode=='regia'){RM.cmd({u:sg.audio,f:from,t:to});return}const my=++agen,ok=()=>my==agen,url=enc(sg.audio);
+ const fail=()=>{if(RM.mode=='gioco'){if(ok())dispUnlock(()=>clip(sg,from,to));return}if(ok()&&st&&st.ph=='run'){st.err=true;R()}};
  if(!au){au=new Audio();au.preload='auto'}
  au.pause();
  const go=()=>{if(!ok())return;try{au.currentTime=from}catch(e){}
@@ -164,7 +165,7 @@ GM.gs={n:'GUESS THE SONG',s:'QUIZ MUSICALE',i:'🎵',d:'Ascolta pochi secondi e 
  go:()=>{if(!CAT||!CAT.length){alert(catMsg());return}const o=OP.gs;
   const pick=()=>{const u=CAT.filter(s=>!st.used.includes(s.id));if(!u.length){st.ph='cat';st.song=null;return false}const s=R0(u);st.used.push(s.id);st.song=s.id;st.pos=0;st.err=false;return true};
   const sr=()=>{astop();st.left=o.s*1000;st.p=false;st.started=false;if(pick()){st.ph='run';snd('sw')}};
-  const rev=()=>{st.ph='sol';st.rv=false;const g=gen;setTimeout(()=>{if(g!=gen||!st||st.ph!='sol')return;st.rv=true;const e=$('#cv');if(e)e.classList.add('on')},60)};
+  const rev=()=>{st.ph='sol';st.rv=false;const g=gen;setTimeout(()=>{if(g!=gen||!st||st.ph!='sol')return;st.rv=true;const e=$('#cv');if(e)e.classList.add('on');pubG('game')},60)};
   const fn=()=>{st.ex=[0,1].map(i=>'Corrette: '+st.ok[i]+' · Passi usati: '+st.ps[i]);fin('GUESS THE SONG')};
   play('gs',()=>({sc:[0,0],stp:1,tm:0,ph:'ready',left:o.s*1000,used:[],song:null,pos:0,err:false,rv:false,started:false,ok:[0,0],ps:[0,0]}),
   ()=>{const s=st,t=s.tm;
@@ -186,5 +187,51 @@ GM.gs={n:'GUESS THE SONG',s:'QUIZ MUSICALE',i:'🎵',d:'Ascolta pochi secondi e 
    te:()=>{if(st.ph!='cat')return;fn()},
    pz:()=>{astop();st.p=true;d()}}),
   ms=>{if(st.ph!='run'||!st.started)return;const b=st.left;st.left-=ms;tick10(b,st.left);const e=$('#tm');if(e)e.textContent=sec(st.left);if(st.left<=0){st.left=0;astop();snd('end');if(st.tm==0){st.ph='tr';R()}else fn()}})}};
+
+/* STANZE ONLINE: GIOCO (schermo) e REGIA (comandi) */
+const CKF={gh:()=>[['tm',st.left,st.ph==2&&!st.p,'m']],fi:()=>[['tm',st.md?st.jp:st.left,!st.p,st.md?'s':'m']],du:()=>[['d0',st.l[0],st.a==0&&st.sw<=0&&!st.p,'c'],['d1',st.l[1],st.a==1&&st.sw<=0&&!st.p,'c']],iv:()=>[['tm',st.left,st.ph=='run'&&!st.jd&&!st.p,'m']],da:()=>[['tm',st.left,!st.lk&&!st.p,'s']],gs:()=>[['tm',st.left,st.ph=='run'&&st.started&&!st.p,'s']]};
+function dispHTML(h){return h.replace(/<details class="mnu">[\s\S]*?<\/details>/g,'').replace(/<button\b[^>]*>[\s\S]*?<\/button>/g,b=>/data-a=/.test(b)?(/class="[^"]*\bw\b/.test(b)?b.replace(/ (data-a|data-v)="[^"]*"/g,'').replace(' disabled',''):''):b).replace(/<input[^>]*id="ai"[^>]*>/g,'<div class="fld typed">…</div>').replace(/<div class="row">\s*<\/div>/g,'')}
+function pubG(k){if(RM.mode!='regia'||!st||!gid)return;const c=st.done||!CKF[gid]?[]:CKF[gid]();RM.pub({k,h:dispHTML(A.innerHTML),clk:c.map(x=>[x[0],Math.round(x[1]),x[2]?1:0,x[3]]),n:S.n,g:gid})}
+const er=e=>{const x=$('#er'),m=(e&&e.message)||String(e);if(x){x.className='msg ko';x.textContent=m}else alert(m)};
+const busy=p=>p.catch(er);
+const toast=t=>{const e=$('#er');if(e){e.className='msg ok';e.textContent=t}};
+const copy=t=>{try{navigator.clipboard.writeText(t).then(()=>toast('Copiato!'),()=>toast(t))}catch(e){toast(t)}};
+const share=l=>{if(navigator.share)navigator.share({title:'QUIZ ARENA',text:'Entra nella mia stanza',url:l}).catch(()=>{});else copy(l)};
+function roomScreen(){if(!RM.ok||RM.mode=='regia')return menu();
+  acts={cr:()=>busy(RM.init().then(()=>RM.create()).then(lobby)),jn:()=>busy(RM.init().then(()=>joinScr())),lc:()=>{RM.mode='local';menu()},bk:teams};
+  scr(`<section class="c"><h2>COLLEGA I DISPOSITIVI</h2><p class="sub">Un dispositivo mostra il gioco (GIOCO), l’altro lo comanda (REGIA). Basta un codice.</p><div class="grid"><div class="cd"><div class="ic">🛰️</div><h2>CREA UNA STANZA</h2><p>Genera un codice da inserire sull’altro dispositivo.</p><button class="b" data-a="cr">CREA UNA STANZA</button></div><div class="cd"><div class="ic">🔑</div><h2>ENTRA IN UNA STANZA</h2><p>Hai già un codice? Collegati alla partita.</p><button class="b" data-a="jn">ENTRA IN UNA STANZA</button></div></div><p class="msg ko" id="er"></p><button class="b g" data-a="lc">GIOCA SOLO SU QUESTO DISPOSITIVO</button><button class="b g" data-a="bk">INDIETRO</button></section>`)}
+function joinScr(pre){acts={go:()=>busy(RM.join($('#cd').value).then(lobby)),bk:home};
+  scr(`<section class="c"><h2>ENTRA IN UNA STANZA</h2><input class="fld code" id="cd" maxlength="6" placeholder="CODICE" autocapitalize="characters" autocomplete="off" value="${esc(pre||'')}"><p class="msg ko" id="er"></p><button class="b big" data-a="go">ENTRA</button><button class="b g" data-a="bk">INDIETRO</button></section>`)}
+function lobby(){stop();RM.unsub();let M={},P={};const me=RM.uid(),code=RM.code(),link=location.origin+location.pathname+'?stanza='+code;
+  const card=(r,t,d,ic)=>{const o=M[r],mine=o&&o===me,on=P[r]&&P[r].on;return`<div class="cd role ${mine?'mine':''}"><div class="ic">${ic}</div><h2>${t}</h2><p>${d}</p><span class="stt ${o?'busy':''}">${!o?'LIBERO':mine?'QUESTO DISPOSITIVO':on?'OCCUPATO · CONNESSO':'OCCUPATO · OFFLINE'}</span><button class="b" data-a="role" data-v="${r}" ${o&&!mine&&on?'disabled':''}>${mine?'ENTRA':'SCEGLI '+t}</button></div>`};
+  const dr=()=>{A.innerHTML=`<section class="c"><div class="tag">CODICE STANZA</div><div class="rcode">${code}</div><div class="row"><button class="b s" data-a="cp">COPIA CODICE</button><button class="b s" data-a="sl">CONDIVIDI LINK</button></div><div class="grid">${card('gioco','GIOCO','Mostra la partita sullo schermo. Domande, parole, lettere, timer e punteggi, senza i comandi della regia.','📺')}${card('regia','REGIA','Controlla la partita. Gestisci le impostazioni, avvia i round, conferma le risposte e fai avanzare il gioco.','🎛️')}</div><p class="msg ko" id="er"></p><p class="sub">${M.gioco&&M.regia?'Entrambi i ruoli sono assegnati: la partita è pronta.':'In attesa dell’altro dispositivo…'}</p><button class="b g" data-a="lv">ESCI DALLA STANZA</button></section>`};
+  acts={role:r=>busy(RM.claim(r).then(()=>enterRole(r))),cp:()=>copy(code),sl:()=>share(link),lv:()=>RM.leave().then(home)};
+  RM.on('meta',v=>{M=v||{};dr()});RM.on('pres',v=>{P=v||{};dr()});dr()}
+function enterRole(r){RM.unsub();RM.on('pres',p=>{const g=p&&p.gioco,x=$('#rst');if(x)x.textContent='STANZA '+RM.code()+' · SCHERMO '+(g&&g.on?'● COLLEGATO':'○ NON COLLEGATO')});
+  if(r=='regia'){RM.mode='regia';if(!$('#rst')){const x=document.createElement('div');x.id='rst';x.className='rst';document.body.appendChild(x)}menu()}else showDisplay()}
+let dk=null,dRaf=0,dClk=[],dAt=0,dmi=null,dMsg=0,lastK='';
+const WM=['La sfida sta per cominciare…','La regia sta preparando il gioco.','Le squadre sono pronte?','Preparati a mettere alla prova le tue conoscenze.'];
+function morphKids(a,b){const x=[...a.childNodes],y=[...b.childNodes];y.forEach((n,i)=>{const o=x[i];if(!o){a.appendChild(n.cloneNode(true));return}
+  if(o.nodeType!=n.nodeType||o.nodeName!=n.nodeName){o.replaceWith(n.cloneNode(true));return}
+  if(n.nodeType==3){if(o.data!=n.data)o.data=n.data;return}
+  [...o.attributes].forEach(t=>{if(!n.hasAttribute(t.name))o.removeAttribute(t.name)});[...n.attributes].forEach(t=>{if(o.getAttribute(t.name)!=t.value)o.setAttribute(t.name,t.value)});morphKids(o,n)});
+  for(let i=x.length-1;i>=y.length;i--)x[i].remove()}
+function morph(el,html){const t=document.createElement('template');t.innerHTML=html;morphKids(el,t.content)}
+const waitHTML=s=>`<section class="c wait"><div class="halo"><img class="logo" src="assets/logo.png" alt="QUIZ ARENA"></div>${s.k=='prev'?`<div class="ic">${s.i}</div><h2>${esc(s.gn)}</h2><p class="sub">${esc(s.gd)}</p>`:''}<p class="sub wm" id="wmsg">${esc(s.m||WM[0])}</p><div class="wdots"><i></i><i></i><i></i></div>${s.n?`<p class="sub">${esc(s.n[0])} · ${esc(s.n[1])}</p>`:''}</section>`;
+function dframe(){dRaf=0;if(dk!='g')return;let run=0;dClk.forEach(([id,ms,r,f])=>{const e=$('#dv #'+id);if(!e)return;const v=r?ms-(RM.now()-dAt):ms,t=({m:fm,s:sec,c:fmc})[f](v);if(r)run=1;if(e.textContent!=t)e.textContent=t;e.classList.toggle('low',!!r&&v<=10000)});if(run)dRaf=requestAnimationFrame(dframe)}
+function dispRender(s){if(s.n)s.n=Object.values(s.n);S.n=s.n||S.n;const dv=$('#dv'),w=s.k=='game'||s.k=='fin',kind=w?'g':s.k,html=w?`<div class="dg">${s.h}</div>`:waitHTML(s);
+  if(dk===kind)morph(dv,html);else{dv.innerHTML=html;dv.classList.remove('ani');void dv.offsetWidth;dv.classList.add('ani')}
+  dk=kind;dClk=Object.values(s.clk||{}).map(x=>Object.values(x));dAt=s.at;clearInterval(dmi);dmi=null;
+  if(!w)dmi=setInterval(()=>{const e=$('#wmsg');if(e)e.textContent=WM[++dMsg%WM.length]},4500);
+  else{cancelAnimationFrame(dRaf);dframe();if(s.k=='fin'&&lastK!='fin')conf()}
+  lastK=s.k}
+function dispUnlock(f){if(document.querySelector('.mdl'))return;const o=document.createElement('div');o.className='mdl';o.innerHTML='<div class="mbx"><p>Tocca per attivare l’audio</p><button class="b big" data-m="1">ATTIVA AUDIO</button></div>';o.addEventListener('click',()=>{o.remove();f()});document.body.appendChild(o)}
+function showDisplay(){stop();st=null;acts={};RM.mode='gioco';document.body.classList.add('disp');document.body.classList.remove('is-home');dk=null;lastK='';
+  A.innerHTML='<div id="dv"></div><div id="dpill" class="dpill" hidden>Connessione con la regia interrotta. In attesa di riconnessione…</div>';
+  dispRender({k:'wait',m:WM[0]});
+  RM.on('snap',s=>{if(s)dispRender(s)});RM.on('pres',p=>{const r=p&&p.regia,e=$('#dpill');if(e)e.hidden=!(r&&r.on===false)});
+  RM.onCmd(c=>{if(c.s){astop();return}clip({audio:c.u},c.f,c.t)})}
+function restore(){if(!RM.ok)return;const s=RM.saved();if(!s)return;RM.init().then(()=>RM.join(s.code)).then(()=>s.role?RM.claim(s.role).then(()=>enterRole(s.role)):lobby()).catch(()=>RM.forget())}
 home();
+{const q=new URLSearchParams(location.search).get('stanza');if(q&&RM.ok)RM.init().then(()=>joinScr(q.toUpperCase())).catch(er);else restore()}
 })();

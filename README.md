@@ -40,3 +40,6 @@ Estrai lo ZIP e apri `index.html` con doppio clic.
 - Il catalogo parte vuoto: non ci sono canzoni di esempio.
 - Il catalogo si legge solo dal sito pubblicato su Vercel o da un server locale (per esempio `python3 -m http.server` nella cartella del progetto). Aprendo `index.html` con doppio clic gli altri giochi funzionano, ma GUESS THE SONG non può leggere `songs.json`.
 - Dopo aver aggiunto file e voci: su GitHub premi **Add file**, **Upload files**, trascina `songs` e premi **Commit changes**.
+
+## Stanze online (GIOCO + REGIA)
+Per usare due dispositivi collegati serve configurare Firebase (gratis): segui **GUIDA-STANZE.md**. Senza configurazione QUIZ ARENA funziona come prima su un solo dispositivo.
