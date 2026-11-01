@@ -63,11 +63,15 @@ function prep(id){stop();if(RM.mode=='regia')RM.pub({k:'prev',n:S.n,g:id,gn:GM[i
   scr(`<section class="c"><div class="ic" style="font-size:3rem">${GM[id].i}</div><h2>${GM[id].n}</h2><p class="sub">${GM[id].r}</p><div class="cd opt">${GM[id].o()}</div><button class="b" data-a="st">INIZIA IL GIOCO</button>${id=='gs'?'':`<button class="b s" data-a="ac">AGGIUNGI ${id=='iv'?'PAROLA':id=='gh'?'PARTITA':'DOMANDA'}</button>`}<button class="b s" data-a="bk">INDIETRO</button></section>`)}
 
 /* LA GHIGLIOTTINA */
-const ghS=()=>D.gh.concat(cust('gh').map(l=>{const[x,s]=l.split('|');return[x,s.trim().toUpperCase(),sh(D.DEC).slice(0,5).join(',')]}));
+const LVL=g=>`<label>Livello<select id="o_lv">${g=='gh'?'<option value="0">Casuale</option>':'<option value="0">Progressivo: da facile a difficile</option>'}<option value="1">Facile</option><option value="2">Medio</option><option value="3">Difficile</option>${g=='gh'?'':'<option value="4">Tutti mescolati</option>'}</select></label>`;
+const pool=(g,lv)=>lv?C[g][lv].concat(lv==2?cust(g):[]):[1,2,3].flatMap(l=>C[g][l]).concat(cust(g));
+function pickN(g,lv,n){const p=pool(g,lv);let seen=LS.g('seen_'+g,[]);const un=sh(p.filter(x=>!seen.includes(x))),r=un.concat(sh(p.filter(x=>seen.includes(x)))).slice(0,n);seen=un.length<n?r.slice():seen.concat(r);LS.s('seen_'+g,seen.slice(-900));return r}
+function SEQ(g,mode,n){if(mode==0){const a=Math.ceil(n/3),b=Math.ceil((n-a)/2);return pickN(g,1,a).concat(pickN(g,2,b),pickN(g,3,n-a-b))}return pickN(g,mode==4?0:mode,n)}
+const ghItem=lv=>{const[x,s]=pickN('gh',lv,1)[0].split('|'),cl=x.split(',').map(w=>w.trim().toUpperCase()),sol=s.trim().toUpperCase(),all=[...new Set([1,2,3].flatMap(l=>C.gh[l]).concat(cust('gh')).flatMap(t=>t.split('|')[0].split(',').map(w=>w.trim().toUpperCase())))].filter(w=>!cl.includes(w)&&w!=sol);return[x,sol,sh(all).slice(0,5).join(',')]};
 GM.gh={n:'LA GHIGLIOTTINA',s:"L'EREDITÀ",i:'🪓',d:'Scegli le parole giuste, poi trova la soluzione che le lega tutte.',r:'Cinque coppie di parole: ogni risposta sbagliata dimezza il montepremi. Poi cinque indizi e 60 secondi per trovare la parola che li collega. Tocca la parola: il gioco verifica da solo. Alla fine scrivi la soluzione e premi CONFERMA.',
- o:()=>tsel()+`<label>Montepremi iniziale<input class="fld" id="o_jp" type="number" min="1000" step="1000" value="100000" inputmode="numeric"></label><label>Partita<select id="o_set">${ghS().map((s,i)=>`<option value="${i}">${i<D.gh.length?'Partita '+(i+1):'Personalizzata '+(i-D.gh.length+1)}</option>`).join('')}</select></label>`,
- rd:()=>{OP.gh={tm:nv('o_tm'),jp:Math.max(1000,nv('o_jp')||100000),set:nv('o_set')}},
- go:()=>{const o=OP.gh,s=ghS()[o.set],c=s[0].split(',').map(x=>x.trim().toUpperCase()),d=s[2].split(',').map(x=>x.trim().toUpperCase());
+ o:()=>tsel()+`<label>Montepremi iniziale<input class="fld" id="o_jp" type="number" min="1000" step="1000" value="100000" inputmode="numeric"></label>${LVL('gh')}`,
+ rd:()=>{OP.gh={tm:nv('o_tm'),jp:Math.max(1000,nv('o_jp')||100000),lv:nv('o_lv')}},
+ go:()=>{const o=OP.gh,s=ghItem(o.lv),c=s[0].split(',').map(x=>x.trim().toUpperCase()),d=s[2].split(',').map(x=>x.trim().toUpperCase());
   play('gh',()=>({sc:[0,0],stp:1000,tm:o.tm,jp:o.jp,c,d,sol:s[1],ph:1,i:0,f:c.map(()=>Math.random()<.5),pk:null,fb:null,rv:false,left:60000,p:false,ans:'',cf:false,lk:false,solo:1,won:false}),
   ()=>{const s=st;let h=`<section class="c game"><div class="jp">MONTEPREMI<strong>${s.jp.toLocaleString('it-IT')}</strong></div><p class="sub">${tn(s.tm)}</p>`;
    if(s.ph==1){const cr=s.f[s.i]?1:0,w=cr?[s.d[s.i],s.c[s.i]]:[s.c[s.i],s.d[s.i]];
@@ -82,10 +86,10 @@ GM.gh={n:'LA GHIGLIOTTINA',s:"L'EREDITÀ",i:'🪓',d:'Scegli le parole giuste, p
 /* AVANTI UN ALTRO */
 let FS=[];
 GM.fi={n:'IL GIOCO FINALE',s:'AVANTI UN ALTRO!',i:'🎯',d:'21 risposte sbagliate di fila: tocca quella sbagliata!',r:'Ogni domanda ha due risposte. Devi toccare quella SBAGLIATA, 21 volte di fila. Se tocchi quella giusta, si riparte dalla prima domanda: le domande del round restano sempre le stesse, nello stesso ordine. A ogni nuovo round cambiano.',
- o:()=>tsel()+`<label>Modalità<select id="o_md"><option value="0">Classica: 150 secondi</option><option value="1">Montepremi: 100.000 punti, −1.000 al secondo</option></select></label>`,
- rd:()=>{OP.fi={tm:nv('o_tm'),md:nv('o_md')}},
- go:()=>{const o=OP.fi,P=D.fi.concat(cust('fi')).map(l=>l.split('|')).filter(x=>x[2]),L=Math.min(21,P.length);
-  const mkSeq=()=>{let s,k;for(let n=0;n<40;n++){s=sh(P).slice(0,L);k=s.map(x=>x[0]).join('|');if(!FS.includes(k))break}FS.push(k);if(FS.length>2)FS.shift();return s};
+ o:()=>tsel()+`<label>Modalità<select id="o_md"><option value="0">Classica: 150 secondi</option><option value="1">Montepremi: 100.000 punti, −1.000 al secondo</option></select></label>${LVL('fi')}`,
+ rd:()=>{OP.fi={tm:nv('o_tm'),md:nv('o_md'),lv:nv('o_lv')}},
+ go:()=>{const o=OP.fi,L=21;
+  const mkSeq=()=>{let s,k;for(let n=0;n<40;n++){s=SEQ('fi',o.lv,L).map(l=>l.split('|')).filter(x=>x[2]);k=s.map(x=>x[0]).join('|');if(!FS.includes(k))break}FS.push(k);if(FS.length>2)FS.shift();return s};
   play('fi',()=>{const seq=mkSeq();return{sc:[0,0],stp:100,tm:o.tm,md:o.md,seq,fl:seq.map(()=>Math.random()<.5),qi:0,left:150000,jp:100000,fb:null,solo:1,won:false,nl:'TURNO DI '+S.n[1-o.tm].toUpperCase()}},
   ()=>{const s=st,[q,c,w]=s.seq[s.qi],op=s.fl[s.qi]?[w,c]:[c,w];
    return`<section class="c game"><p>${tn(s.tm)} · ${s.md?'MONTEPREMI':'CLASSICA'}</p><div class="prog">${s.qi}/${s.seq.length}</div><div class="pips">${s.seq.map((_,k)=>`<i class="${k<s.qi?'f':''}"></i>`).join('')}</div><div class="clock" id="tm">${s.md?sec(s.jp):fm(s.left)}</div>${s.md?`<div class="jp">MONTEPREMI<strong id="jp">${s.jp.toLocaleString('it-IT')}</strong></div>`:''}<h2 class="q">${esc(q)}</h2><div class="pair">${op.map((x,k)=>`<button class="b w big" data-a="an" data-v="${k}">${esc(x)}</button>`).join('')}</div><p class="msg ${s.fb?s.fb[0]:''}">${s.fb?s.fb[1]:'Tocca la risposta SBAGLIATA'}</p>${pnl()}</section>`},
@@ -97,9 +101,9 @@ GM.fi={n:'IL GIOCO FINALE',s:'AVANTI UN ALTRO!',i:'🎯',d:'21 risposte sbagliat
    if(n<=0){snd('end');st.note='Tempo scaduto: serie raggiunta '+st.qi+'/'+st.seq.length;fin('AVANTI UN ALTRO!')}})}};
 /* IL DUELLO */
 GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: indovina la parola prima che il tempo finisca.',r:'Una definizione e una parola con le lettere nascoste: una nuova lettera appare ogni 2 secondi, l’ultima resta nascosta. La squadra risponde a voce; il conduttore preme «PASSA ALL’ALTRA SQUADRA». Il timer della squadra attiva scorre, l’altro aspetta. Chi finisce il tempo perde.',
- o:()=>`<label>Secondi per squadra<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
- rd:()=>{OP.du={s:Math.max(10,nv('o_s')||60)}},
- go:()=>{const o=OP.du,Q=sh(D.du.concat(cust('du')).map(l=>l.split('|')).filter(x=>x[0]&&x[1]&&x[1].trim()));
+ o:()=>`<label>Secondi per squadra<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>${LVL('du')}`,
+ rd:()=>{OP.du={s:Math.max(10,nv('o_s')||60),lv:nv('o_lv')}},
+ go:()=>{const o=OP.du,Q=SEQ('du',o.lv,60).map(l=>l.split('|')).filter(x=>x[0]&&x[1]&&x[1].trim());
   const W=()=>Q[st.i%Q.length][1].toUpperCase(),N=()=>W().replace(/ /g,'').length,LN=i=>Q[i%Q.length][1].replace(/ /g,'').length,mo=n=>sh([...Array(n).keys()]);
   const cells=()=>{let k=0;return[...W()].map(c=>{if(c==' ')return'<span class="cell sp"></span>';const v=st.sw>0||st.ord.indexOf(k)<st.rev;k++;return`<span class="cell ${v?'on':''}"><span class="in"><span class="fr"></span><span class="bk">${esc(c)}</span></span></span>`}).join('')};
   play('du',()=>({sc:[0,0],stp:1,l:[o.s*1000,o.s*1000],a:0,i:0,rev:0,rt:0,sw:0,ord:mo(LN(0)),msg:'Inizia '+S.n[0]}),
@@ -115,9 +119,9 @@ GM.du={n:'IL DUELLO',s:"L'EREDITÀ",i:'⚔️',d:'Le lettere compaiono da sole: 
    st.rt+=ms;const tg=Math.min(N()-1,Math.floor(st.rt/2000));while(st.rev<tg){st.rev++;const c=document.querySelectorAll('#wd .cell:not(.sp)')[st.ord[st.rev-1]];if(c)c.classList.add('on','fresh');snd('tick');pubG('game')}},10)}};
 /* INTESA VINCENTE */
 GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'I compagni suggeriscono una parola alla volta: chi indovina vince punti.',r:'Scegli la squadra. I suggeritori guardano lo schermo, chi indovina si gira. In 60 secondi dite una parola alla volta per far indovinare la parola segreta. Quando pensate di aver indovinato, il conduttore preme INDOVINA: il tempo si ferma. Risposta corretta +1, sbagliata −1, poi parola nuova e il tempo riparte. Poi gioca l’altra squadra.',
- o:()=>tsel()+`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>`,
- rd:()=>{OP.iv={tm:nv('o_tm'),s:Math.max(10,nv('o_s')||60)}},
- go:()=>{const o=OP.iv;let P=[];D.iv.forEach(l=>{const[c,w]=l.split(':');w.split(',').forEach(x=>P.push(x))});cust('iv').forEach(l=>P.push(l.split('|')[0].trim()));P=sh(P);
+ o:()=>tsel()+`<label>Secondi per turno<input class="fld" id="o_s" type="number" min="10" value="60" inputmode="numeric"></label>${LVL('iv')}`,
+ rd:()=>{OP.iv={tm:nv('o_tm'),s:Math.max(10,nv('o_s')||60),lv:nv('o_lv')}},
+ go:()=>{const o=OP.iv;let P=SEQ('iv',o.lv,90).map(l=>l.split('|')[0].trim());if(!P.length)P=['parola'];
   const nw=()=>{st.wi++};
   play('iv',()=>({sc:[0,0],stp:1,tm:o.tm,ph:'prep',left:o.s*1000,max:o.s*1000,wi:0,g:[0,0],er:[0,0],dn:[false,false],jd:false}),
   ()=>{const s=st,t=s.tm;
@@ -132,9 +136,9 @@ GM.iv={n:'L’INTESA VINCENTE',s:'REAZIONE A CATENA',i:'🔗',d:'I compagni sugg
   ms=>{if(st.ph!='run'||st.jd)return;const b=st.left;st.left-=ms;tick10(b,st.left);const e=$('#tm');if(e)e.textContent=fm(st.left);if(st.left<=0){st.left=0;st.ph='res';st.dn[st.tm]=true;snd('end');R()}})}};
 /* GIOCO DELLE DATE */
 GM.da={n:'IL GIOCO DELLE DATE',s:"L'EREDITÀ",i:'📅',d:'Quattro anni, una sola data giusta: le squadre si alternano.',r:'Ogni domanda ha quattro anni possibili. Le squadre rispondono a turno: +10 punti per ogni risposta esatta. Tocca un anno: il gioco verifica da solo, mostra la spiegazione e passa alla domanda dopo.',
- o:()=>`<label>Numero di domande<input class="fld" id="o_n" type="number" min="2" max="100" value="10" inputmode="numeric"></label><label>Secondi per domanda<input class="fld" id="o_s" type="number" min="5" value="30" inputmode="numeric"></label>`,
- rd:()=>{OP.da={n:Math.max(2,nv('o_n')||10),s:Math.max(5,nv('o_s')||30)}},
- go:()=>{const o=OP.da,Q=sh(D.da.concat(cust('da')).map(l=>l.split('|'))).slice(0,o.n);
+ o:()=>`<label>Numero di domande<input class="fld" id="o_n" type="number" min="2" max="100" value="10" inputmode="numeric"></label><label>Secondi per domanda<input class="fld" id="o_s" type="number" min="5" value="30" inputmode="numeric"></label>${LVL('da')}`,
+ rd:()=>{OP.da={n:Math.max(2,nv('o_n')||10),s:Math.max(5,nv('o_s')||30),lv:nv('o_lv')}},
+ go:()=>{const o=OP.da,Q=SEQ('da',o.lv,o.n).map(l=>l.split('|'));
   const mk=y=>{y=+y;const k=y<1000?10:1,s=new Set([y]);sh([-7,-4,-2,2,3,5,8]).forEach(x=>{if(s.size<4)s.add(y+x*k)});return[...s].sort((a,b)=>a-b)};
   const nq=()=>{st.i++;if(st.i>=Q.length)return fin('IL GIOCO DELLE DATE');st.tm=1-st.tm;st.o=mk(Q[st.i][2]);st.sel=null;st.lk=false;st.res=null;st.left=o.s*1000;snd('sw');R()};
   const adv=()=>{const g=gen,i=st.i;setTimeout(()=>{if(g!=gen||!st||st.done||st.i!=i||!st.lk)return;if(st.p){adv();return}nq()},2300)};
