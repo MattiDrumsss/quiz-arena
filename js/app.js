@@ -50,12 +50,12 @@ function fin(t){
 const cust=k=>LS.g('cu_'+k,[]);
 const ID=['gh','fi','du','iv','da','gs'];
 const GM={};
-function home(){stop();st=null;pubW();acts={go:teams,rl:rules,j2:()=>RM.init().then(()=>joinScr()).catch(er),sd:()=>{S.snd=!S.snd;LS.s('snd',S.snd);home()}};
+function home(){stop();st=null;pubW();document.body.classList.remove('disp','conc');{const x=$('#rst');if(x&&RM.mode!='regia')x.remove()}acts={go:teams,rl:rules,j2:()=>RM.init().then(()=>joinScr()).catch(er),sd:()=>{S.snd=!S.snd;LS.s('snd',S.snd);home()}};
   scr(`<section class="c hero"><img class="logo" src="assets/logo.png" alt="QUIZ ARENA" width="900" height="900" decoding="async"><h1 class="sr">QUIZ ARENA</h1><div class="tag">Il game show da giocare con gli amici</div><p class="sub">I giochi dei quiz TV in una sola arena: due squadre, un conduttore, nessuna registrazione.</p><button class="b" data-a="go">INIZIA A GIOCARE</button><button class="b s" data-a="rl">REGOLE DEI GIOCHI</button>${RM.ok?'<button class="b g" data-a="j2">COLLEGA UN SECONDO SCHERMO</button>':''}<button class="b s" data-a="sd">EFFETTI SONORI: ${S.snd?'ATTIVI':'SPENTI'}</button></section>`);document.body.classList.add('is-home')}
 function rules(){acts={hm:home};scr(`<section class="c"><h2>REGOLE DEI GIOCHI</h2><div class="grid">${ID.map(i=>`<div class="cd"><div class="ic">${GM[i].i}</div><h2>${GM[i].n}</h2><p>${GM[i].r}</p></div>`).join('')}</div><button class="b" data-a="hm">TORNA ALLA HOME</button></section>`)}
 function teams(){pubW();acts={hm:home,ok:()=>{S.n=[0,1].map(i=>$('#n'+i).value.trim()||'Squadra '+(i+1));LS.s('n',S.n);roomScreen()}};
   scr(`<section class="c"><h2>CHI GIOCA?</h2><div class="grid">${[0,1].map(i=>`<div class="cd tcard t${i}"><div class="ic">${i?'🔥':'⚡'}</div><h2>SQUADRA ${i+1}</h2><input class="fld" id="n${i}" maxlength="24" placeholder="Squadra ${i+1}" value="${S.n[i]=='Squadra '+(i+1)?'':esc(S.n[i])}" autocomplete="off"></div>`).join('')}</div><button class="b" data-a="ok">CONFERMA</button><button class="b s" data-a="hm">INDIETRO</button></section>`)}
-function menu(){stop();st=null;acts={pr:prep,tm:teams,hm:home,lv:()=>{pubW();RM.leave().then(home)}};if(RM.mode=='regia')RM.pub({k:'wait',n:S.n,m:'La regia sta scegliendo il gioco.'});
+function menu(){stop();st=null;acts={pr:prep,tm:teams,hm:home,lv:()=>ask('Uscire dalla stanza? Il display tornerà all’attesa.',exitRoom)};if(RM.mode=='regia')RM.pub({k:'wait',n:S.n,m:'La regia sta scegliendo il gioco.'});
   scr(`<section class="c"><h2>SCEGLI UN GIOCO</h2><p class="sub">${tn(0)} contro ${tn(1)}</p><div class="grid">${ID.map(i=>`<div class="cd"><div class="ic">${GM[i].i}</div><h2>${GM[i].n}</h2><small>${GM[i].s}</small><p>${GM[i].d}</p><button class="b" data-a="pr" data-v="${i}">GIOCA</button></div>`).join('')}</div><button class="b s" data-a="tm">CAMBIA SQUADRE</button>${RM.mode=='regia'?'<button class="b g" data-a="lv">ESCI DALLA STANZA</button>':'<button class="b s" data-a="hm">HOME</button>'}</section>`)}
 const HINT={gh:'5 indizi separati da virgola, poi | e la soluzione. Esempio: ARTIFICIO,FATUO,AMICO,INCROCIATO,SACRO|FUOCO',fi:'domanda|risposta corretta|risposta sbagliata',du:'definizione|PAROLA',iv:'parola|categoria',da:'categoria|domanda|anno|spiegazione'};
 const NEED={gh:2,fi:3,du:2,iv:1,da:4};
@@ -192,6 +192,7 @@ GM.gs={n:'GUESS THE SONG',s:'QUIZ MUSICALE',i:'🎵',d:'Ascolta pochi secondi e 
 const CKF={gh:()=>[['tm',st.left,st.ph==2&&!st.p,'m']],fi:()=>[['tm',st.md?st.jp:st.left,!st.p,st.md?'s':'m']],du:()=>[['d0',st.l[0],st.a==0&&st.sw<=0&&!st.p,'c'],['d1',st.l[1],st.a==1&&st.sw<=0&&!st.p,'c']],iv:()=>[['tm',st.left,st.ph=='run'&&!st.jd&&!st.p,'m']],da:()=>[['tm',st.left,!st.lk&&!st.p,'s']],gs:()=>[['tm',st.left,st.ph=='run'&&st.started&&!st.p,'s']]};
 function dispHTML(h){return h.replace(/<details class="mnu">[\s\S]*?<\/details>/g,'').replace(/<button\b[^>]*>[\s\S]*?<\/button>/g,b=>/data-a=/.test(b)?(/class="[^"]*\bw\b/.test(b)?b.replace(/ (data-a|data-v)="[^"]*"/g,'').replace(' disabled',''):''):b).replace(/<input[^>]*id="ai"[^>]*>/g,'<div class="fld typed">…</div>').replace(/<div class="row">\s*<\/div>/g,'')}
 function pubG(k){if(RM.mode!='regia'||!st||!gid)return;const c=st.done||!CKF[gid]?[]:CKF[gid]();RM.pub({k,q:gid=='iv'&&!st.done?{r:st.ph=='run'&&!st.jd&&!st.p?1:0,j:st.jd?1:0,w:st.wi}:null,h:dispHTML(A.innerHTML),clk:c.map(x=>[x[0],Math.round(x[1]),x[2]?1:0,x[3]]),n:S.n,g:gid})}
+function exitRoom(){pubW();clearInterval(dmi);dmi=null;cancelAnimationFrame(dRaf);dRaf=0;dk=null;astop();RM.leave().then(home)}
 function pubW(){if(RM.mode=='regia')RM.pub({k:'wait',n:S.n,m:'La regia ha lasciato il gioco. Si ricomincia tra poco…'},true)}
 const er=e=>{const x=$('#er'),m=(e&&e.message)||String(e);if(x){x.className='msg ko';x.textContent=m}else alert(m)};
 const busy=p=>p.catch(er);
@@ -206,17 +207,17 @@ function joinScr(pre){acts={go:()=>busy(RM.join($('#cd').value).then(lobby)),bk:
 function lobby(){stop();RM.unsub();let M={},P={},G=null;const me=RM.uid(),code=RM.code(),link=location.origin+location.pathname+'?stanza='+code;
   const card=(r,t,d,ic)=>{const o=M[r],mine=o&&o===me,on=P[r]&&P[r].on;return`<div class="cd role ${mine?'mine':''}"><div class="ic">${ic}</div><h2>${t}</h2><p>${d}</p><span class="stt ${o?'busy':''}">${!o?'LIBERO':mine?'QUESTO DISPOSITIVO':on?'OCCUPATO · CONNESSO':'OCCUPATO · OFFLINE'}</span><button class="b" data-a="role" data-v="${r}" ${o&&!mine&&on?'disabled':''}>${mine?'ENTRA':'SCEGLI '+t}</button></div>`};
   const dr=()=>{A.innerHTML=`<section class="c"><div class="tag">CODICE STANZA</div><div class="rcode">${code}</div><div class="row"><button class="b s" data-a="cp">COPIA CODICE</button><button class="b s" data-a="sl">CONDIVIDI LINK</button></div><div class="grid">${card('gioco','GIOCO','Mostra la partita sullo schermo. Domande, parole, lettere, timer e punteggi, senza i comandi della regia.','📺')}${(G=='iv'||M.concorrente===me)?card('concorrente','CONCORRENTE','Solo per Intesa vincente: un unico grande pulsante INDOVINA.','🎤'):''}${card('regia','REGIA','Controlla la partita. Gestisci le impostazioni, avvia i round, conferma le risposte e fai avanzare il gioco.','🎛️')}</div><p class="msg ko" id="er"></p><p class="sub">${M.gioco&&M.regia?'Entrambi i ruoli sono assegnati: la partita è pronta.':'In attesa dell’altro dispositivo…'}</p><button class="b g" data-a="lv">ESCI DALLA STANZA</button></section>`};
-  acts={role:r=>busy(RM.claim(r).then(()=>enterRole(r))),cp:()=>copy(code),sl:()=>share(link),lv:()=>RM.leave().then(home)};
+  acts={role:r=>busy(RM.claim(r).then(()=>enterRole(r))),cp:()=>copy(code),sl:()=>share(link),lv:()=>exitRoom()};
   RM.on('meta',v=>{M=v||{};dr()});RM.on('pres',v=>{P=v||{};dr()});RM.on('snap',v=>{G=v&&v.g||null;dr()});dr()}
 function enterRole(r){RM.unsub();RM.on('pres',p=>{const x=$('#rst');if(!x)return;const g=p&&p.gioco,c=p&&p.concorrente;x.textContent='STANZA '+RM.code()+' · SCHERMO '+(g&&g.on?'● COLLEGATO':'○ NON COLLEGATO')+(c?' · CONCORRENTE '+(c.on?'●':'○'):'')});
   if(r=='regia'){RM.mode='regia';if(!$('#rst')){const x=document.createElement('div');x.id='rst';x.className='rst';document.body.appendChild(x)}
     RM.onReq(q=>{if(gid!='iv'||!st||st.ph!='run'||st.jd||st.p||st.left<=0||!acts.id||RM.now()-q.at>5000)return;const late=Math.max(0,Math.min(RM.now()-q.at,1500));st.left=st.max?Math.min(st.max,st.left+late):st.left+late;acts.id()});menu()}
   else if(r=='concorrente')showConc();else showDisplay()}
 function showConc(){stop();st=null;acts={};RM.mode='concorrente';document.body.classList.add('disp','conc');document.body.classList.remove('is-home');
-  A.innerHTML='<section class="c conc"><div class="tag" id="cs">IN ATTESA DELLA REGIA</div><button class="b giant" id="cb" data-a="ind" disabled>INDOVINA</button></section><div id="dpill" class="dpill" hidden>Connessione con la regia interrotta. In attesa di riconnessione…</div>';
+  A.innerHTML='<section class="c conc"><div class="tag" id="cs">IN ATTESA DELLA REGIA</div><button class="b giant" id="cb" data-a="ind" disabled>INDOVINA</button></section><button class="xbtn" data-a="xt">ESCI DALLA STANZA</button><div id="dpill" class="dpill" hidden>Connessione con la regia interrotta. In attesa di riconnessione…</div>';
   let Q=null,sent=null;
   const upd=()=>{const on=!!Q&&Q.r==1&&sent!==Q.w,b=$('#cb'),s=$('#cs');if(b)b.disabled=!on;if(s)s.textContent=!Q?'IN ATTESA DELLA REGIA':Q.r==1?(on?'PREMI QUANDO HAI INDOVINATO':'RICHIESTA INVIATA…'):Q.j==1?'ATTENDI IL VERDETTO DELLA REGIA':'IN ATTESA DEL PROSSIMO ROUND'};
-  acts={ind:()=>{if(!Q||Q.r!=1||sent===Q.w)return;sent=Q.w;upd();RM.req();const w=sent;setTimeout(()=>{if(Q&&Q.r==1&&Q.w===w&&sent===w){sent=null;upd()}},3000)}};
+  acts={xt:()=>ask('Uscire dalla stanza? Questo dispositivo si scollegherà.',exitRoom),ind:()=>{if(!Q||Q.r!=1||sent===Q.w)return;sent=Q.w;upd();RM.req();const w=sent;setTimeout(()=>{if(Q&&Q.r==1&&Q.w===w&&sent===w){sent=null;upd()}},3000)}};
   RM.on('snap',s=>{Q=s&&s.k=='game'&&s.g=='iv'&&s.q?s.q:null;upd()});
   RM.on('pres',p=>{const r=p&&p.regia,e=$('#dpill');if(e)e.hidden=!(r&&r.on===false)})}
 let dk=null,dRaf=0,dClk=[],dAt=0,dmi=null,dMsg=0,lastK='';
@@ -236,8 +237,8 @@ function dispRender(s){if(s.n)s.n=Object.values(s.n);S.n=s.n||S.n;const dv=$('#d
   else{cancelAnimationFrame(dRaf);dframe();if(s.k=='fin'&&lastK!='fin')conf()}
   lastK=s.k}
 function dispUnlock(f){if(document.querySelector('.mdl'))return;const o=document.createElement('div');o.className='mdl';o.innerHTML='<div class="mbx"><p>Tocca per attivare l’audio</p><button class="b big" data-m="1">ATTIVA AUDIO</button></div>';o.addEventListener('click',()=>{o.remove();f()});document.body.appendChild(o)}
-function showDisplay(){stop();st=null;acts={};RM.mode='gioco';document.body.classList.add('disp');document.body.classList.remove('is-home');dk=null;lastK='';
-  A.innerHTML='<div id="dv"></div><div id="dpill" class="dpill" hidden>Connessione con la regia interrotta. In attesa di riconnessione…</div>';
+function showDisplay(){stop();st=null;acts={xt:()=>ask('Uscire dalla stanza? Questo schermo si scollegherà.',exitRoom)};RM.mode='gioco';document.body.classList.add('disp');document.body.classList.remove('is-home');dk=null;lastK='';
+  A.innerHTML='<div id="dv"></div><button class="xbtn" data-a="xt">ESCI DALLA STANZA</button><div id="dpill" class="dpill" hidden>Connessione con la regia interrotta. In attesa di riconnessione…</div>';
   dispRender({k:'wait',m:WM[0]});
   RM.on('snap',s=>{if(s)dispRender(s)});RM.on('pres',p=>{const r=p&&p.regia,e=$('#dpill');if(e)e.hidden=!(r&&r.on===false)});
   RM.onCmd(c=>{if(c.s){astop();return}clip({audio:c.u},c.f,c.t)})}

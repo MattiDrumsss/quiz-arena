@@ -24,12 +24,12 @@ RM.join=async c=>{c=String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.le
   if(RM.now()-s.val().created>MAXAGE)throw new Error('Stanza scaduta: creane una nuova.');code=c;save();return s.val()};
 RM.claim=async r=>{const m=(await R('meta').once('value')).val()||{};
   if(['regia','gioco','concorrente'].some(x=>x!=r&&m[x]===uid))throw new Error('Questo dispositivo ha già un altro ruolo.');
-  let take=false;if(m[r]&&m[r]!==uid){const p=(await R('pres/'+r).once('value')).val();take=!!p&&p.on===false&&RM.now()-p.t>120000}
+  let take=false,hint='';if(m[r]&&m[r]!==uid){const p=(await R('pres/'+r).once('value')).val();take=!!p&&p.on===false&&RM.now()-p.t>30000;if(!take&&p&&p.on===false)hint=' Il dispositivo si è scollegato da poco: riprova tra '+Math.max(1,Math.ceil((30000-(RM.now()-p.t))/1000))+' secondi.'}
   let res;try{if(m[r]===uid)res={committed:true,snapshot:{val:()=>uid}};else res=await R('meta/'+r).transaction(c=>(c==null||c===uid||take)?uid:undefined)}catch(e){throw new Error('Non è possibile occupare il ruolo '+r.toUpperCase()+'.')}
-  if(!res.committed||res.snapshot.val()!==uid)throw new Error('Il ruolo '+r.toUpperCase()+' è già occupato da un altro dispositivo.');
+  if(!res.committed||res.snapshot.val()!==uid)throw new Error('Il ruolo '+r.toUpperCase()+' è già occupato da un altro dispositivo.'+hint);
   role=r;save();const p=R('pres/'+r),c=db.ref('.info/connected');
   c.on('value',s=>{if(s.val()===true){p.onDisconnect().set({on:false,t:TS()});p.set({on:true,t:TS()});if(last&&role=='regia')RM.pub(last,true)}});subs.push(()=>c.off());return r};
-RM.release=async()=>{if(role&&code)try{await R('meta/'+role).transaction(c=>c===uid?null:undefined);await R('pres/'+role).set({on:false,t:TS()})}catch(e){}};
+RM.release=async()=>{if(role&&code){try{await R('pres/'+role).set({on:false,t:TS()})}catch(e){}try{await R('meta/'+role).transaction(c=>c===uid?null:undefined)}catch(e){}}};
 const flush=()=>{tm=null;if(!last||role!=='regia'||!code)return;R('snap').set(Object.assign({},last,{rev:++rev,at:TS()})).catch(()=>{})};
 RM.pub=(o,now)=>{last=o;clearTimeout(tm);if(now)flush();else tm=setTimeout(flush,60)};
 RM.cmd=o=>{if(role!=='regia'||!code)return;if(o.s&&!lastPlay)return;lastPlay=!o.s;R('cmd').set(Object.assign({s:0},o,{n:Date.now()+Math.random(),at:TS()})).catch(()=>{})};
