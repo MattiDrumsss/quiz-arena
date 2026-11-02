@@ -175,3 +175,6 @@ body.disp{font-size:clamp(17px,1.5vw,27px)}.fld.typed{opacity:.7;text-align:cent
 body.conc .rst,body.conc .mark{display:none}body.conc #app{padding-top:16px}.conc{gap:26px;min-height:90dvh;justify-content:center}
 
 .xbtn{position:fixed;left:10px;bottom:10px;z-index:5;padding:7px 12px;border-radius:99px;border:1px solid #ffffff2a;background:#0d0b06cc;color:#b9a77a;font-size:.7rem;font-weight:700;letter-spacing:.08em;opacity:.4;cursor:pointer;font-family:inherit}.xbtn:hover,.xbtn:focus-visible{opacity:1}
+
+.bk:after{content:attr(data-l)}
+.rg{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 16px;border:1px dashed #f5c54299;border-radius:12px;background:#0d0b06cc;max-width:92vw}.rg small{font-size:.62rem;letter-spacing:.16em;color:#b9a77a}.rg b{color:#ffe9a0;font-size:1.05rem}.rg span{opacity:.85}
