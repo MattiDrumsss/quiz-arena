@@ -547,12 +547,81 @@
   },
   {
     "id": "song_079",
-    "title": "Wannabe",
-    "artist": "Spice Girls",
+    "title": "Obsessed",
+    "artist": "Shiva, ANNA",
     "audio": "songs/audio/song_079.mp3",
     "cover": "songs/covers/song_079.jpg"
+  },
+  {
+    "id": "song_080",
+    "title": "Babyface",
+    "artist": "Shiva",
+    "audio": "songs/audio/song_080.mp3",
+    "cover": "songs/covers/song_080.jpg"
+  },
+  {
+    "id": "song_081",
+    "title": "V per Vangelo",
+    "artist": "Shiva",
+    "audio": "songs/audio/song_081.mp3",
+    "cover": "songs/covers/song_081.jpg"
+  },
+  {
+    "id": "song_082",
+    "title": "Bad Bad Bad",
+    "artist": "Shiva, Geolier",
+    "audio": "songs/audio/song_082.mp3",
+    "cover": "songs/covers/song_082.jpg"
+  },
+  {
+    "id": "song_083",
+    "title": "EVERYDAY",
+    "artist": "Shiva, ANNA, Geolier",
+    "audio": "songs/audio/song_083.mp3",
+    "cover": "songs/covers/song_083.jpg"
+  },
+  {
+    "id": "song_084",
+    "title": "Dio Esiste",
+    "artist": "Shiva",
+    "audio": "songs/audio/song_084.mp3",
+    "cover": "songs/covers/song_084.jpg"
+  },
+  {
+    "id": "song_085",
+    "title": "Auto Blu",
+    "artist": "Shiva",
+    "audio": "songs/audio/song_085.mp3",
+    "cover": "songs/covers/song_085.jpg"
+  },
+  {
+    "id": "song_086",
+    "title": "Davide e Golia",
+    "artist": "Kid Yugi",
+    "audio": "songs/audio/song_086.mp3",
+    "cover": "songs/covers/song_086.jpg"
+  },
+  {
+    "id": "song_087",
+    "title": "Mostro",
+    "artist": "Kid Yugi",
+    "audio": "songs/audio/song_087.mp3",
+    "cover": "songs/covers/song_087.jpg"
+  },
+  {
+    "id": "song_088",
+    "title": "Massafghanistan",
+    "artist": "Kid Yugi, Night Skinny",
+    "audio": "songs/audio/song_088.mp3",
+    "cover": "songs/covers/song_088.jpg"
+  },
+  {
+    "id": "song_089",
+    "title": "Eva",
+    "artist": "Kid Yugi, Tedua",
+    "audio": "songs/audio/song_089.mp3",
+    "cover": "songs/covers/song_089.jpg"
   }
-]
 
 
 
